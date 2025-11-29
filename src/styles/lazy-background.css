@@ -1,0 +1,9 @@
+.lazy-background {
+  background-image: none;
+  opacity: 0;
+  transition: opacity 0.3s ease-in-out;
+}
+
+.lazy-background.loaded {
+  opacity: 1;
+}
