@@ -468,10 +468,15 @@ export default function AboutPage() {
                                         </h4>
                                         <ul className='text-muted-foreground space-y-1'>
                                             <li>
-                                                Master of Social Work, RSW
+                                                Master of Social Work,
+                                                 <li>
+                                                    RSW
+                                                    </li>
                                             </li>
                                             <li>
-                                                Registered, and in good standing with <a href='https://www.ocswssw.org/registrants/' className='text-[#00FFFF] font-bold italic hover:underline transition duration-300 ease-in-out transform hover:scale-105'>OCSWSSW</a>
+                                                Registered, and in good 
+                                                <li>standing with <a href='https://www.ocswssw.org/registrants/' className='text-[#00FFFF] font-bold italic hover:underline transition duration-300 ease-in-out transform hover:scale-105'>OCSWSSW</a>
+                                                 </li>
                                             </li>
                                         </ul>
                                     </div>
@@ -481,7 +486,7 @@ export default function AboutPage() {
                                         </h4>
                                         <ul className='list-disc list-inside text-muted-foreground space-y-1'>
                                             <li>ADHD and Autism</li>
-                                            <li>Trauma Recovery</li>
+                                            <li>Anxiety & Depression</li>
                                             <li>Relationship Counseling</li>
                                             <li>Stress Management</li>
                                             <li>Personal Growth</li>
