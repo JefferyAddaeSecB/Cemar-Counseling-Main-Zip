@@ -4,7 +4,7 @@ import {Button} from '../components/ui/button';
 import {Link} from 'react-router-dom';
 import {motion, AnimatePresence} from 'framer-motion';
 import {UserPlus, Users, Video} from 'lucide-react';
-import {useEffect, useState} from 'react';
+import {useEffect, useState, useRef} from 'react';
 import {LazyImage} from '../components/ui/lazy-image';
 import {cn} from '../lib/utils';
 import {Check} from 'lucide-react';
@@ -267,6 +267,44 @@ export default function Home() {
             }
         }
     };
+
+    // Testimonials data
+    const testimonials = [
+        {
+            img: '/images/client1.jpg',
+            quote: "The counseling sessions have truly transformed my perspective on life. The therapists are compassionate and professional.",
+            name: "Sarah M.",
+            role: "Individual Therapy",
+        },
+        {
+            img: '/images/client2.jpg',
+            quote: "Group counseling helped me realize I wasn't alone in my struggles. The supportive community made all the difference.",
+            name: "James T.",
+            role: "Group Counseling",
+        },
+        {
+            img: '/images/client3.jpg',
+            quote: "The online sessions fit perfectly into my busy schedule. Quality care from the convenience of my home.",
+            name: "Emily R.",
+            role: "Online Sessions",
+        },
+    ];
+
+    const [testimonialIndex, setTestimonialIndex] = useState(0);
+    const testimonialIntervalRef = useRef<number | null>(null);
+
+    useEffect(() => {
+        testimonialIntervalRef.current = window.setInterval(() => {
+            setTestimonialIndex((i) => (i + 1) % testimonials.length);
+        }, 5000);
+
+        return () => {
+            if (testimonialIntervalRef.current) {
+                window.clearInterval(testimonialIntervalRef.current);
+                testimonialIntervalRef.current = null;
+            }
+        };
+    }, []);
 
     // Update the hero section render
     return (
@@ -590,6 +628,119 @@ export default function Home() {
                 </div>
             </section>
 
+            {/* Testimonials Section */}
+            <section className='py-20 bg-background relative overflow-hidden'>
+                <motion.div
+                    className='absolute -top-16 left-1/2 transform -translate-x-1/2 w-[600px] h-[600px] bg-[#30D5C8]/6 rounded-full blur-3xl pointer-events-none'
+                    animate={{ x: [0, 15, -15, 0], y: [0, -8, 8, 0] }}
+                    transition={{ duration: 18, repeat: Number.POSITIVE_INFINITY, repeatType: 'reverse' }}
+                />
+
+                <div className='container mx-auto px-4 sm:px-6 lg:px-8 relative z-10'>
+                    <motion.div
+                        initial='hidden'
+                        whileInView='visible'
+                        viewport={{ once: true, margin: '-100px' }}
+                        className='text-center mb-8'
+                    >
+                        <motion.h2
+                            variants={fadeIn}
+                            className={`text-3xl md:text-4xl font-bold mb-2 ${theme === 'dark' ? 'text-white' : 'text-black'}`}
+                        >
+                            What Our Clients Say
+                        </motion.h2>
+                        <motion.p
+                            variants={fadeIn}
+                            className={`text-lg ${theme === 'dark' ? 'text-white/80' : 'text-black/80'} max-w-2xl mx-auto`}
+                        >
+                            Hear from individuals who have experienced positive change through our counseling services.
+                        </motion.p>
+                    </motion.div>
+
+                    <div className='relative rounded-lg overflow-hidden shadow-lg'>
+                        <MotionLazyImage
+                            src='/images/testimonials-bg.jpg'
+                            alt='soft background'
+                            className='absolute inset-0 w-full h-full object-cover brightness-[0.65] pointer-events-none'
+                        />
+                        <div className='relative z-10 px-4 py-12'>
+                            <div className='relative'>
+                                <motion.div
+                                    className='flex'
+                                    animate={{ x: `-${testimonialIndex * 100}%` }}
+                                    transition={{ type: 'spring', stiffness: 120, damping: 20 }}
+                                    style={{ width: `${testimonials.length * 100}%` }}
+                                >
+                                    {testimonials.map((t, i) => (
+                                        <div key={i} className='w-full px-4' style={{ flex: '0 0 100%' }}>
+                                            <motion.blockquote
+                                                initial='hidden'
+                                                whileInView='visible'
+                                                variants={cardVariants}
+                                                className='bg-card/80 backdrop-blur-sm rounded-lg p-6 md:p-10 shadow-xl border-2 border-[#30D5C8]/20'
+                                            >
+                                                <div className='flex items-center gap-4 mb-4'>
+                                                    <div className='w-16 h-16 rounded-full overflow-hidden flex-shrink-0 ring-2 ring-[#30D5C8]'>
+                                                        <img
+                                                            src={t.img}
+                                                            alt={`${t.name} avatar`}
+                                                            className='w-full h-full object-cover'
+                                                            onError={(e) => { (e.target as HTMLImageElement).src = '/images/avatar-placeholder.png' }}
+                                                        />
+                                                    </div>
+                                                    <div>
+                                                        <p className='font-semibold text-[#30D5C8]'>{t.name}</p>
+                                                        <p className='text-sm text-muted-foreground'>{t.role}</p>
+                                                    </div>
+                                                </div>
+
+                                                <motion.p variants={contentVariants} className='text-muted-foreground italic mb-4 md:mb-6'>
+                                                    "{t.quote}"
+                                                </motion.p>
+
+                                                <div className='flex items-center gap-1'>
+                                                    {Array.from({ length: 5 }).map((_, s) => (
+                                                        <span key={s} className='text-[#30D5C8]'>★</span>
+                                                    ))}
+                                                </div>
+                                            </motion.blockquote>
+                                        </div>
+                                    ))}
+                                </motion.div>
+
+                                {/* Arrow Buttons */}
+                                <button
+                                    onClick={() => { setTestimonialIndex((c) => (c - 1 + testimonials.length) % testimonials.length); if (testimonialIntervalRef.current) { window.clearInterval(testimonialIntervalRef.current); } }}
+                                    className='absolute top-1/2 left-4 transform -translate-y-1/2 bg-white/10 hover:bg-white/20 text-white p-2 rounded-full shadow-md z-20'
+                                    aria-label='Previous testimonial'
+                                >
+                                    ‹
+                                </button>
+                                <button
+                                    onClick={() => { setTestimonialIndex((c) => (c + 1) % testimonials.length); if (testimonialIntervalRef.current) { window.clearInterval(testimonialIntervalRef.current); } }}
+                                    className='absolute top-1/2 right-4 transform -translate-y-1/2 bg-white/10 hover:bg-white/20 text-white p-2 rounded-full shadow-md z-20'
+                                    aria-label='Next testimonial'
+                                >
+                                    ›
+                                </button>
+                            </div>
+
+                            {/* Dot Indicators */}
+                            <div className='mt-6 flex justify-center items-center gap-3'>
+                                {testimonials.map((_, idx) => (
+                                    <button
+                                        key={idx}
+                                        onClick={() => { setTestimonialIndex(idx); if (testimonialIntervalRef.current) { window.clearInterval(testimonialIntervalRef.current); } }}
+                                        aria-label={`Go to testimonial ${idx + 1}`}
+                                        className={`w-3 h-3 rounded-full transition-colors ${testimonialIndex === idx ? 'bg-[#30D5C8]' : 'bg-white/40'}`}
+                                    />
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
             {/* CTA Section */}
             <section className='py-20 relative overflow-hidden'>
                 {/* Background Image */}
@@ -648,6 +799,7 @@ export default function Home() {
                         }}
                     />
                 </motion.div>
+                
 
                 <div className='container relative z-10 mx-auto px-4 sm:px-6 lg:px-8'>
                     <motion.div

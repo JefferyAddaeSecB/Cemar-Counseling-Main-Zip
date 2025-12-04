@@ -468,14 +468,11 @@ export default function AboutPage() {
                                         </h4>
                                         <ul className='text-muted-foreground space-y-1'>
                                             <li>
-                                                Master of Social Work,
-                                                 <li>
-                                                    RSW
-                                                    </li>
+                                                Master of Social Work, RSW
                                             </li>
                                             <li>
-                                                Registered, and in good 
-                                                <li>standing with <a href='https://www.ocswssw.org/registrants/' className='text-[#00FFFF] font-bold italic hover:underline transition duration-300 ease-in-out transform hover:scale-105'>OCSWSSW</a>
+                                                Registered, and in good Standing 
+                                                <li> with <a href='https://www.ocswssw.org/registrants/' className='text-[#00FFFF] font-bold italic hover:underline transition duration-300 ease-in-out transform hover:scale-105'>OCSWSSW</a>
                                                  </li>
                                             </li>
                                         </ul>

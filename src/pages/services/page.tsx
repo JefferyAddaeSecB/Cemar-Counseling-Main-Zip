@@ -123,7 +123,7 @@ export default function ServicesPage() {
     },
     {
       title: "Couples Package",
-      price: "$175",
+      price: "$195",
       description: "Per 60-minute session",
       features: [
         "Relationship assessment",
