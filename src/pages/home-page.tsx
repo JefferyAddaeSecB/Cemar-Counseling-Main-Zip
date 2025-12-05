@@ -17,7 +17,7 @@ export default function Home() {
 
   // -- Config / constants (memoized) -------------------------------------------------
   const heroImages = useMemo(
-    () => ['/images/1.JPG', '/images/2.JPG', '/images/3.JPG'],
+    () => [ '/images/0.JPG', '/images/1.JPG', '/images/2.JPG', '/images/3.JPG'],
     []
   );
 

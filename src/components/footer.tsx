@@ -136,21 +136,24 @@ export default function Footer() {
                     <motion.div variants={itemVariants} className="space-y-4">
                         <motion.h3 variants={itemVariants} className="text-lg font-semibold">Quick Links</motion.h3>
                         <ul className="space-y-2">
-                            {['Home', 'About', 'Services', 'Contact'].map((link, index) => (
-                                <motion.li
-                                    key={link}
-                                    variants={itemVariants}
-                                    custom={index}
-                                    whileHover="hover"
-                                >
-                                    <Link
-                                        to={`/${link.toLowerCase()}`}
-                                        className="text-muted-foreground hover:text-[#30D5C8]"
-                                    >
-                                        {link}
-                                    </Link>
-                                </motion.li>
-                            ))}
+                           {['Home', 'About', 'Services', 'Contact'].map((link, index) => {
+    const path =
+        link === "Home"
+            ? "/"                    // FIXED
+            : `/${link.toLowerCase()}`;
+
+    return (
+        <motion.li key={link} variants={itemVariants} custom={index} whileHover="hover">
+            <Link
+                to={path}
+                onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+                className="text-muted-foreground hover:text-[#30D5C8]"
+            >
+                {link}
+            </Link>
+        </motion.li>
+    );
+})}
                         </ul>
                     </motion.div>
 
@@ -168,8 +171,9 @@ export default function Footer() {
                                         to="#"
                                         className="text-muted-foreground hover:text-[#30D5C8]"
                                         onClick={(e) => {
-                                            e.preventDefault()
-                                            handleServiceClick("/services")
+                                            e.preventDefault();
+                                            window.scrollTo({ top: 0, behavior: "smooth" });
+                                            handleServiceClick("/services");
                                         }}
                                     >
                                         {service}
@@ -230,4 +234,3 @@ export default function Footer() {
         </motion.footer>
     )
 }
-
