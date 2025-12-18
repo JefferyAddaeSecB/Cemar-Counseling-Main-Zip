@@ -455,7 +455,7 @@ export default function ContactPage() {
                     <div className="text-center">
                       <h3 className={`font-medium ${theme === 'dark' ? 'text-white' : 'text-black'}`}>Email</h3>
                       <p>
-                        <a href="mailto:info@cemar.com" className={`${theme === 'dark' ? 'text-white hover:text-[#30D5C8]' : 'text-black hover:text-[#008080]'} transition-colors`}>
+                        <a href="mailto:info@cemarcounseling.com" className={`${theme === 'dark' ? 'text-white hover:text-[#30D5C8]' : 'text-black hover:text-[#008080]'} transition-colors`}>
                           info@cemarcounseling.com
                         </a>
                       </p>
