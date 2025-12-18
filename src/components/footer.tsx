@@ -195,7 +195,7 @@ export default function Footer() {
                         </motion.p>
                         <motion.p variants={itemVariants}>
                             <a
-                                href="mailto:info@cemar.com"
+                                href="mailto:info@cemarcounseling.com"
                                 className="hover:text-[#30D5C8]"
                             >
                                 info@cemarcounseling.com

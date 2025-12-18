@@ -391,7 +391,7 @@ export default function TermsPage() {
             >
               For any questions about these terms, please contact us at{" "}
               <motion.a 
-                href="mailto:support@cemarcounselling.com" 
+                href="mailto:info@cemarcounseling.com" 
                 className="text-white hover:underline"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
