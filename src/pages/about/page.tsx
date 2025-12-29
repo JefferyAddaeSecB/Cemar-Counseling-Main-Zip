@@ -431,8 +431,8 @@ export default function AboutPage() {
                         <div className='md:flex h-full'>
                             <div className='md:w-1/2 h-full pt-16'>
                                 <motion.img
-                                    src='/images/Cemar counseling CEO 2.jpeg'
-                                    alt='Cemar Counseling CEO'
+                                    src='/images/team/cecilia.jpg'
+                                    alt='Cecilia Mar'
                                     className='w-full h-full object-cover rounded-2xl shadow-2xl'
                                     initial={{ opacity: 0, scale: 0.9 }}
                                     whileInView={{ opacity: 1, scale: 1 }}
