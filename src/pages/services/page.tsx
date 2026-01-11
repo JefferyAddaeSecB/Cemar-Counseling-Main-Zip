@@ -101,7 +101,7 @@ export default function ServicesPage() {
   const pricingPlans = [
     {
       title: "Individual Session",
-      price: "$150",
+      price: "$160",
       description: "Per 50-minute session",
       features: [
         "One-on-one attention",
@@ -464,10 +464,30 @@ export default function ServicesPage() {
             <motion.p
               variants={fadeIn}
               custom={1}
-              className={`text-xl ${theme === 'dark' ? 'text-white/80' : 'text-black/80'} max-w-2xl mx-auto`}
+              className={`text-xl ${theme === 'dark' ? 'text-white/80' : 'text-black/80'} max-w-2xl mx-auto mb-6`}
             >
               Not sure which service is right for you? Contact us for a free 15-minute consultation to discuss your needs.
             </motion.p>
+            <motion.div
+              variants={fadeIn}
+              custom={2}
+              whileHover={{scale: 1.05}}
+              whileTap={{scale: 0.95}}
+            >
+              <Button
+                size='lg'
+                className='text-lg bg-[#008080] hover:bg-[#008080]/90 text-white shadow-lg'
+                onClick={() => {
+                  if (checkIsLoggedIn()) {
+                    navigate('/booking');
+                  } else {
+                    navigate('/login');
+                  }
+                }}
+              >
+                Book a Free 15-Minute Consultation
+              </Button>
+            </motion.div>
           </motion.div>
         </div>
       </section>

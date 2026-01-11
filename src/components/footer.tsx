@@ -187,10 +187,10 @@ export default function Footer() {
                         <motion.h3 variants={itemVariants} className="text-lg font-semibold">Contact</motion.h3>
                         <motion.p variants={itemVariants} className="mt-2">
                             <a
-                                href="tel:+1234567890"
+                                href="tel:+19059092400"
                                 className="hover:text-[#30D5C8]"
                             >
-                                (416) 885-6821
+                                (905) 909-2400
                             </a>
                         </motion.p>
                         <motion.p variants={itemVariants}>

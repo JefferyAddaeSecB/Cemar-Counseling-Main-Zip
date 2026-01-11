@@ -434,8 +434,8 @@ export default function ContactPage() {
                     <div className="text-center">
                       <h3 className={`font-medium ${theme === 'dark' ? 'text-white' : 'text-black'}`}>Phone</h3>
                       <p>
-                        <a href="tel:+1234567890" className={`${theme === 'dark' ? 'text-white hover:text-[#30D5C8]' : 'text-black hover:text-[#008080]'} transition-colors`}>
-                          (416) 885-6821
+                        <a href="tel:+19059092400" className={`${theme === 'dark' ? 'text-white hover:text-[#30D5C8]' : 'text-black hover:text-[#008080]'} transition-colors`}>
+                          (905) 909-2400
                         </a>
                       </p>
                       <p className={`text-sm mt-1 ${theme === 'dark' ? 'text-white/80' : 'text-black/80'}`}>Monday-Friday, 9am-5pm</p>

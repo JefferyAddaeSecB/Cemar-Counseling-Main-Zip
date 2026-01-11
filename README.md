@@ -117,7 +117,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 For any inquiries, please contact:
 - Email: info@cemarcounseling.com
-- Phone: (416) 885-6821
+- Phone: (905) 909-2400
 - Website: [www.cemarcounseling.com](https://www.cemarcounseling.com)
 
 ## Acknowledgments

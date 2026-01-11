@@ -122,7 +122,7 @@ export default function PrivacyPolicyPage() {
                 </p>
                 <p className="font-medium">
                   Email: privacy@cemarcounseling.com<br />
-                  Phone: (416) 885-6821
+                  Phone: (905) 909-2400
                 </p>
               </div>
             </motion.div>
