@@ -92,7 +92,7 @@ export default function BookingPage() {
                     <h2 className="text-2xl font-bold text-white">
                       {services.find(s => s.key === selectedService)?.title}
                     </h2>
-                    <p className="text-base text-white/90 mt-2">
+                    <p className="text-base text-[#30D5C8] font-medium mt-2">
                       Complete your booking by selecting an available time slot below.
                     </p>
                   </div>
