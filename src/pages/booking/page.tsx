@@ -45,7 +45,7 @@ export default function BookingPage() {
             >
               <h1 className="text-4xl font-bold mb-4 text-black dark:text-white/90">Book an Appointment</h1>
               <p className="text-lg text-black/70 mb-8 dark:text-white/70">
-                Select your preferred date and time from the calendar below. One of our therapists will confirm your appointment shortly.
+                Choose the counseling service that best fits your needs, then select your preferred date and time to get started on your wellness journey.
               </p>
             </motion.div>
           </motion.div>
@@ -85,20 +85,20 @@ export default function BookingPage() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.4 }}
-                className="bg-gradient-to-br from-[#30D5C8]/5 to-[#008080]/5 rounded-lg p-6 border border-[#30D5C8]/20 shadow-sm"
+                className="bg-gradient-to-br from-[#30D5C8] to-[#008080] rounded-lg p-6 shadow-lg"
               >
                 <div className="flex items-center justify-between mb-4">
                   <div>
-                    <h2 className="text-xl font-semibold">
+                    <h2 className="text-2xl font-bold text-white">
                       {services.find(s => s.key === selectedService)?.title}
                     </h2>
-                    <p className="text-sm text-muted-foreground">
-                      Select your preferred date and time from the calendar below.
+                    <p className="text-base text-white/90 mt-2">
+                      Complete your booking by selecting an available time slot below.
                     </p>
                   </div>
                   <div>
-                    <button onClick={handleChangeSelection} className="text-sm text-[#008080] hover:text-[#008080]/80 underline">
-                      Change selection
+                    <button onClick={handleChangeSelection} className="text-sm text-white hover:text-white/80 underline font-medium">
+                      Change service
                     </button>
                   </div>
                 </div>
