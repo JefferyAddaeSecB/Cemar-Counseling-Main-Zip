@@ -3,6 +3,23 @@
 import { useEffect, useState } from "react"
 import { motion } from "framer-motion"
 
+// Separate component to ensure Calendly widget properly mounts/unmounts
+function CalendlyWidget({ url }: { url: string }) {
+  useEffect(() => {
+    if (typeof window !== 'undefined' && (window as any).Calendly) {
+      (window as any).Calendly.initInlineWidgets()
+    }
+  }, [url])
+
+  return (
+    <div
+      className="calendly-inline-widget"
+      data-url={url}
+      style={{ minWidth: '320px', height: '800px', borderRadius: '8px', overflow: 'hidden' } as React.CSSProperties}
+    ></div>
+  )
+}
+
 export default function BookingPage() {
   // map services to Calendly URLs
   const serviceToUrl: Record<string, string> = {
@@ -38,17 +55,7 @@ export default function BookingPage() {
     }
   }, [])
 
-  // When selectedService changes, reinit Calendly widget with new URL
-  useEffect(() => {
-    if (selectedService && typeof window !== 'undefined') {
-      // Wait for DOM to update, then reload Calendly
-      setTimeout(() => {
-        if ((window as any).Calendly) {
-          (window as any).Calendly.initInlineWidgets()
-        }
-      }, 100)
-    }
-  }, [selectedService])
+
   return (
     <div className="pt-16">
       <section className="py-20 bg-background">
@@ -121,12 +128,7 @@ export default function BookingPage() {
                 </div>
 
                 <div className="mt-4">
-                  <div
-                    key={calendlyUrl}
-                    className="calendly-inline-widget"
-                    data-url={calendlyUrl ?? ''}
-                    style={{ minWidth: '320px', height: '800px', borderRadius: '8px', overflow: 'hidden' } as React.CSSProperties}
-                  ></div>
+                  <CalendlyWidget url={calendlyUrl} />
                 </div>
               </motion.div>
             )}
