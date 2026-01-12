@@ -21,13 +21,12 @@ export default function BookingPage() {
     }
   }, [])
 
-  // map services to Calendly URLs (update as you provide links)
+  // map services to Calendly URLs
   const serviceToUrl: Record<string, string> = {
     individual: 'https://calendly.com/cemarcounseling-info/30min',
     free15: 'https://calendly.com/cemarcounseling-info/new-meeting',
-    // placeholders for future links
-    group: 'https://calendly.com/cemarcounseling-info/30min',
-    couples: 'https://calendly.com/cemarcounseling-info/30min',
+    group: 'https://calendly.com/cemarcounseling-info/group-counseling',
+    couples: 'https://calendly.com/cemarcounseling-info/couples-counseling',
   }
 
   // allow pre-selection via query param: ?calendly=free15 or ?calendly=individual
