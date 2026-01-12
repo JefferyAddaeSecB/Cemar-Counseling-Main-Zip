@@ -5,44 +5,23 @@ import { motion } from "framer-motion"
 
 export default function BookingPage() {
   const [selectedService, setSelectedService] = useState<string | null>(null)
-  const [scriptLoaded, setScriptLoaded] = useState(false)
 
   // map services to Calendly URLs
   const services = [
-    { key: 'individual', title: 'Individual Counseling', description: 'Select this to schedule individual counseling.', url: 'https://calendly.com/cemarcounseling-info/30min' },
-    { key: 'group', title: 'Group Counseling', description: 'Select this to schedule group counseling.', url: 'https://calendly.com/cemarcounseling-info/group-counseling' },
-    { key: 'couples', title: 'Couples Counseling', description: 'Select this to schedule couples counseling.', url: 'https://calendly.com/cemarcounseling-info/couples-counseling' },
-    { key: 'free15', title: 'Free 15-Min Consultation', description: 'Select this to schedule free 15-min consultation.', url: 'https://calendly.com/cemarcounseling-info/new-meeting' },
+    { key: 'individual', title: 'Individual Counseling', description: 'Select this to schedule individual counseling.', url: 'https://calendly.com/cemarcounseling-info/30min?hide_event_type_details=1&hide_gdpr_banner=1' },
+    { key: 'group', title: 'Group Counseling', description: 'Select this to schedule group counseling.', url: 'https://calendly.com/cemarcounseling-info/group-counseling?hide_event_type_details=1&hide_gdpr_banner=1' },
+    { key: 'couples', title: 'Couples Counseling', description: 'Select this to schedule couples counseling.', url: 'https://calendly.com/cemarcounseling-info/couples-counseling?hide_event_type_details=1&hide_gdpr_banner=1' },
+    { key: 'free15', title: 'Free 15-Min Consultation', description: 'Select this to schedule free 15-min consultation.', url: 'https://calendly.com/cemarcounseling-info/new-meeting?hide_event_type_details=1&hide_gdpr_banner=1' },
   ]
 
-  const calendlyUrl = selectedService ? services.find(s => s.key === selectedService)?.url : null
+  const selectedUrl = selectedService ? services.find(s => s.key === selectedService)?.url : null
 
-  // Load Calendly script once on mount
+  // Reinitialize Calendly widget when URL changes
   useEffect(() => {
-    if (typeof window !== 'undefined' && !scriptLoaded) {
-      const script = document.createElement('script')
-      script.src = 'https://assets.calendly.com/assets/external/widget.js'
-      script.async = true
-      
-      script.onload = () => {
-        setScriptLoaded(true)
-      }
-      
-      document.body.appendChild(script)
+    if (selectedUrl && typeof window !== 'undefined' && (window as any).Calendly) {
+      (window as any).Calendly.initInlineWidgets()
     }
-  }, [])
-
-  // When user selects a service and script is loaded, reinitialize widget
-  useEffect(() => {
-    if (selectedService && scriptLoaded && typeof window !== 'undefined') {
-      // Wait a tick for DOM to update
-      setTimeout(() => {
-        if ((window as any).Calendly) {
-          (window as any).Calendly.initInlineWidgets()
-        }
-      }, 50)
-    }
-  }, [selectedService, scriptLoaded])
+  }, [selectedUrl])
 
   const handleSelectService = (serviceKey: string) => {
     setSelectedService(serviceKey)
@@ -125,25 +104,20 @@ export default function BookingPage() {
                 </div>
 
                 {/* Calendly Inline Widget */}
-                {calendlyUrl && (
+                {selectedUrl && (
                   <div className="mt-6 bg-white dark:bg-slate-900 rounded-lg overflow-hidden border border-[#30D5C8]/20">
-                    <div
-                      className="calendly-inline-widget"
-                      data-url={calendlyUrl}
-                      style={{ minHeight: '750px' } as React.CSSProperties}
-                    ></div>
+                    <iframe
+                      src={selectedUrl}
+                      width="100%"
+                      height="750"
+                      frameBorder="0"
+                      title="Schedule appointment"
+                    ></iframe>
                   </div>
                 )}
               </motion.div>
             )}
           </div>
-
-          <style>{`
-            .calendly-inline-widget {
-              --cal-primary-color: #30D5C8;
-              --cal-secondary-color: #008080;
-            }
-          `}</style>
         </div>
       </section>
     </div>
