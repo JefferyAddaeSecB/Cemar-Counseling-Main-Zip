@@ -5,7 +5,7 @@ import { motion } from "framer-motion"
 
 export default function BookingPage() {
   const [selectedService, setSelectedService] = useState<string | null>(null)
-  const [calendlyUrl, setCalendlyUrl] = useState<string | null>(null)
+  const [scriptLoaded, setScriptLoaded] = useState(false)
 
   // map services to Calendly URLs
   const services = [
@@ -15,28 +15,34 @@ export default function BookingPage() {
     { key: 'free15', title: 'Free 15-Min Consultation', description: 'Select this to schedule free 15-min consultation.', url: 'https://calendly.com/cemarcounseling-info/new-meeting' },
   ]
 
+  const calendlyUrl = selectedService ? services.find(s => s.key === selectedService)?.url : null
+
   // Load Calendly script once on mount
   useEffect(() => {
-    if (typeof window !== 'undefined') {
+    if (typeof window !== 'undefined' && !scriptLoaded) {
       const script = document.createElement('script')
       script.src = 'https://assets.calendly.com/assets/external/widget.js'
       script.async = true
+      
+      script.onload = () => {
+        setScriptLoaded(true)
+      }
+      
       document.body.appendChild(script)
     }
   }, [])
 
-  // When user selects a service, set the URL and reinitialize widget
+  // When user selects a service and script is loaded, reinitialize widget
   useEffect(() => {
-    if (selectedService && typeof window !== 'undefined' && (window as any).Calendly) {
-      const serviceUrl = services.find(s => s.key === selectedService)?.url
-      setCalendlyUrl(serviceUrl || null)
-      
-      // Reinitialize Calendly widget with new URL
+    if (selectedService && scriptLoaded && typeof window !== 'undefined') {
+      // Wait a tick for DOM to update
       setTimeout(() => {
-        (window as any).Calendly.initInlineWidgets()
-      }, 100)
+        if ((window as any).Calendly) {
+          (window as any).Calendly.initInlineWidgets()
+        }
+      }, 50)
     }
-  }, [selectedService])
+  }, [selectedService, scriptLoaded])
 
   const handleSelectService = (serviceKey: string) => {
     setSelectedService(serviceKey)
@@ -44,7 +50,6 @@ export default function BookingPage() {
 
   const handleChangeSelection = () => {
     setSelectedService(null)
-    setCalendlyUrl(null)
   }
 
 
@@ -120,13 +125,15 @@ export default function BookingPage() {
                 </div>
 
                 {/* Calendly Inline Widget */}
-                <div className="mt-6 bg-white dark:bg-slate-900 rounded-lg overflow-hidden border border-[#30D5C8]/20">
-                  <div
-                    className="calendly-inline-widget"
-                    data-url={calendlyUrl}
-                    style={{ minHeight: '750px' } as React.CSSProperties}
-                  ></div>
-                </div>
+                {calendlyUrl && (
+                  <div className="mt-6 bg-white dark:bg-slate-900 rounded-lg overflow-hidden border border-[#30D5C8]/20">
+                    <div
+                      className="calendly-inline-widget"
+                      data-url={calendlyUrl}
+                      style={{ minHeight: '750px' } as React.CSSProperties}
+                    ></div>
+                  </div>
+                )}
               </motion.div>
             )}
           </div>
