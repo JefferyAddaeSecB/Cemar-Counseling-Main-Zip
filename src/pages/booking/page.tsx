@@ -41,12 +41,11 @@ export default function BookingPage() {
   // When selectedService changes, reload Calendly widget
   useEffect(() => {
     if (selectedService && typeof window !== 'undefined' && (window as any).Calendly) {
-      (window as any).Calendly.initInlineWidget({
-        url: calendlyUrl,
-        parentElement: document.querySelector('.calendly-inline-widget'),
-      })
+      setTimeout(() => {
+        (window as any).Calendly.reload()
+      }, 100)
     }
-  }, [selectedService, calendlyUrl])
+  }, [selectedService])
   return (
     <div className="pt-16">
       <section className="py-20 bg-background">
