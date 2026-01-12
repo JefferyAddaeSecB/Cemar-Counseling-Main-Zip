@@ -211,7 +211,7 @@ export default function Footer() {
                     <motion.p variants={itemVariants} className="text-center text-sm text-muted-foreground">
                         © {new Date().getFullYear()} CEMAR. All rights reserved.
                     </motion.p>
-                    <div className="mt-4 flex justify-center space-x-6">
+                    <div className="mt-4 flex justify-center space-x-6 flex-wrap">
                         <motion.a
                             variants={itemVariants}
                             whileHover="hover"
@@ -227,6 +227,14 @@ export default function Footer() {
                             className="text-xs text-muted-foreground hover:text-[#30D5C8]"
                         >
                             Terms of Service
+                        </motion.a>
+                        <motion.a
+                            variants={itemVariants}
+                            whileHover="hover"
+                            href="/informed-consent"
+                            className="text-xs text-muted-foreground hover:text-[#30D5C8]"
+                        >
+                            Informed Consent
                         </motion.a>
                     </div>
                 </motion.div>

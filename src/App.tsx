@@ -15,6 +15,7 @@ import ProfilePage from './pages/profile/page';
 import AccountSettingsPage from './pages/account-settings/page';
 import PreferencesPage from './pages/settings/page';
 import PrivacyPolicyPage from './pages/privacy/page';
+import InformedConsentPage from './pages/informed-consent/page';
 import ProtectedRoute from './components/protected-route';
 import './styles/globals.css';
 
@@ -33,6 +34,7 @@ function App() {
             <Route path="/login" element={<LoginPage />} />
             <Route path="/terms" element={<TermsPage />} />
             <Route path="/privacy" element={<PrivacyPolicyPage />} />
+            <Route path="/informed-consent" element={<InformedConsentPage />} />
             <Route path="/forgot-password" element={<ForgotPasswordPage />} />
             <Route
               path="/profile"
