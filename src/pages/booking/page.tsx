@@ -21,6 +21,10 @@ export default function BookingPage() {
     }
   }, [])
 
+  // Choose Calendly URL based on query param (default to 30min)
+  const calendlyUrl = (typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('calendly') === 'free15')
+    ? 'https://calendly.com/cemarcounseling-info/new-meeting'
+    : 'https://calendly.com/cemarcounseling-info/30min'
   return (
     <div className="pt-16">
       <section className="py-20 bg-background">
@@ -48,7 +52,7 @@ export default function BookingPage() {
             >
               <div 
                 className="calendly-inline-widget" 
-                data-url="https://calendly.com/cemarcounseling-info/30min" 
+                data-url={calendlyUrl}
                 style={{
                   minWidth: '320px',
                   height: '800px',

@@ -479,7 +479,8 @@ export default function ServicesPage() {
                 className='text-lg bg-[#008080] hover:bg-[#008080]/90 text-white shadow-lg'
                 onClick={() => {
                   if (checkIsLoggedIn()) {
-                    navigate('/booking');
+                    // Direct user straight to Calendly free 15-min link inside booking page
+                    navigate('/booking?calendly=free15');
                   } else {
                     navigate('/login');
                   }
