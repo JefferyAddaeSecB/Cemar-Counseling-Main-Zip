@@ -38,11 +38,14 @@ export default function BookingPage() {
     }
   }, [])
 
-  // When selectedService changes, reload Calendly widget
+  // When selectedService changes, reinit Calendly widget with new URL
   useEffect(() => {
-    if (selectedService && typeof window !== 'undefined' && (window as any).Calendly) {
+    if (selectedService && typeof window !== 'undefined') {
+      // Wait for DOM to update, then reload Calendly
       setTimeout(() => {
-        (window as any).Calendly.reload()
+        if ((window as any).Calendly) {
+          (window as any).Calendly.initInlineWidgets()
+        }
       }, 100)
     }
   }, [selectedService])
@@ -119,6 +122,7 @@ export default function BookingPage() {
 
                 <div className="mt-4">
                   <div
+                    key={calendlyUrl}
                     className="calendly-inline-widget"
                     data-url={calendlyUrl ?? ''}
                     style={{ minWidth: '320px', height: '800px', borderRadius: '8px', overflow: 'hidden' } as React.CSSProperties}
