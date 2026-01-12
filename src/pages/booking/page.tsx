@@ -135,7 +135,6 @@ export default function BookingPage() {
                 }
               }
             `}</style>
-          </div>
         </div>
       </section>
     </div>
