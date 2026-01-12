@@ -4,6 +4,23 @@ import { useEffect, useState } from "react"
 import { motion } from "framer-motion"
 
 export default function BookingPage() {
+  // map services to Calendly URLs
+  const serviceToUrl: Record<string, string> = {
+    individual: 'https://calendly.com/cemarcounseling-info/30min',
+    free15: 'https://calendly.com/cemarcounseling-info/new-meeting',
+    group: 'https://calendly.com/cemarcounseling-info/group-counseling',
+    couples: 'https://calendly.com/cemarcounseling-info/couples-counseling',
+  }
+
+  // allow pre-selection via query param: ?calendly=free15 or ?calendly=individual
+  const [selectedService, setSelectedService] = useState<string | null>(() => {
+    if (typeof window === 'undefined') return null
+    const param = new URLSearchParams(window.location.search).get('calendly')
+    return param && Object.keys(serviceToUrl).includes(param) ? param : null
+  })
+
+  const calendlyUrl = selectedService ? serviceToUrl[selectedService] : null
+
   useEffect(() => {
     // Load Calendly script
     if (typeof window !== 'undefined') {
@@ -21,22 +38,15 @@ export default function BookingPage() {
     }
   }, [])
 
-  // map services to Calendly URLs
-  const serviceToUrl: Record<string, string> = {
-    individual: 'https://calendly.com/cemarcounseling-info/30min',
-    free15: 'https://calendly.com/cemarcounseling-info/new-meeting',
-    group: 'https://calendly.com/cemarcounseling-info/group-counseling',
-    couples: 'https://calendly.com/cemarcounseling-info/couples-counseling',
-  }
-
-  // allow pre-selection via query param: ?calendly=free15 or ?calendly=individual
-  const [selectedService, setSelectedService] = useState<string | null>(() => {
-    if (typeof window === 'undefined') return null
-    const param = new URLSearchParams(window.location.search).get('calendly')
-    return param && Object.keys(serviceToUrl).includes(param) ? param : null
-  })
-
-  const calendlyUrl = selectedService ? serviceToUrl[selectedService] : null
+  // When selectedService changes, reload Calendly widget
+  useEffect(() => {
+    if (selectedService && typeof window !== 'undefined' && (window as any).Calendly) {
+      (window as any).Calendly.initInlineWidget({
+        url: calendlyUrl,
+        parentElement: document.querySelector('.calendly-inline-widget'),
+      })
+    }
+  }, [selectedService, calendlyUrl])
   return (
     <div className="pt-16">
       <section className="py-20 bg-background">
