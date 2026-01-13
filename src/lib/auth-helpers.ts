@@ -123,7 +123,8 @@ export async function signInWithGoogle(): Promise<User> {
     return userData
   } catch (error) {
     console.error("Error signing in with Google:", error)
-    throw error
+    const msg = mapFirebaseAuthError(error)
+    throw new Error(msg)
   }
 }
 
@@ -161,7 +162,7 @@ export async function signup(name: string, email: string, password: string): Pro
     return userData
   } catch (error: any) {
     console.error('Error signing up:', error)
-    const message = error?.message || 'Failed to create account'
+    const message = mapFirebaseAuthError(error)
     throw new Error(message)
   }
 }
@@ -193,7 +194,35 @@ export async function login(email: string, password: string): Promise<User> {
     return userData
   } catch (error) {
     console.error("Error logging in:", error)
-    throw error
+    const msg = mapFirebaseAuthError(error)
+    throw new Error(msg)
+  }
+}
+
+// Map Firebase auth error codes to friendly messages
+function mapFirebaseAuthError(err: any): string {
+  if (!err) return 'Authentication error'
+  const code: string = err.code || ''
+
+  switch (code) {
+    case 'auth/email-already-in-use':
+      return 'This email is already in use. Try logging in or use a different email.'
+    case 'auth/invalid-email':
+      return 'The email address is invalid.'
+    case 'auth/operation-not-allowed':
+      return 'Email/password sign-in is not enabled. Enable it in Firebase Console → Authentication → Sign-in method.'
+    case 'auth/weak-password':
+      return 'Password is too weak. Use at least 6 characters.'
+    case 'auth/wrong-password':
+      return 'Incorrect password. Please try again.'
+    case 'auth/user-not-found':
+      return 'No user found with this email. Please sign up first.'
+    case 'auth/user-disabled':
+      return 'This user account has been disabled.'
+    case 'auth/popup-closed-by-user':
+      return 'Sign-in popup closed before completing sign-in.'
+    default:
+      return err.message || 'Authentication error'
   }
 }
 
