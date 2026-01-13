@@ -66,7 +66,7 @@ export function GoogleSignInButton({
                 animate={{ rotate: 360 }}
                 transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
               />
-              <span>Signing in...</span>
+              <span className="text-black">Signing in...</span>
             </>
           ) : (
             <>
@@ -95,7 +95,7 @@ export function GoogleSignInButton({
                   fill="#EA4335"
                 />
               </svg>
-              <span>Sign in with Google</span>
+              <span className="text-black">Sign in with Google</span>
             </>
           )}
         </motion.div>
