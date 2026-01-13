@@ -5,7 +5,7 @@ import {
   signInWithEmailAndPassword,
   UserCredential
 } from 'firebase/auth'
-import { doc, setDoc, getDoc } from 'firebase/firestore'
+import { doc, setDoc, getDoc, serverTimestamp } from 'firebase/firestore'
 import { auth, googleProvider, firestore } from './firebase'
 
 // This is an auth helper for Firebase Authentication with Google Sign-In
@@ -70,8 +70,8 @@ async function saveUserToFirestore(uid: string, userData: Partial<UserProfile>):
     const userRef = doc(firestore, 'users', uid)
     await setDoc(userRef, {
       ...userData,
-      createdAt: new Date(),
-      updatedAt: new Date(),
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp(),
     }, { merge: true })
   } catch (error) {
     console.error("Error saving user to Firestore:", error)

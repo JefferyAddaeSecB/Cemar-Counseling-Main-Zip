@@ -11,6 +11,7 @@ import { motion, AnimatePresence } from "framer-motion"
 import { Link, useNavigate, useSearchParams, useLocation } from "react-router-dom"
 import { login, signup, checkIsLoggedIn } from "../../lib/auth-helpers"
 import { GoogleIcon } from "../../components/icons/google-icon"
+import { GoogleSignInButton } from "../../components/google-sign-in-button"
 
 interface LoginData {
   email: string;
@@ -356,29 +357,10 @@ export default function LoginPage() {
                             </div>
 
                             <motion.div variants={buttonVariants} whileHover="hover" whileTap="tap">
-                                <Button
-                                    type="button"
-                                    variant="outline"
-                                    className="w-full relative overflow-hidden bg-[#008080] text-white hover:bg-[#008080]/90"
-                                >
-                                    <motion.div
-                                        className="absolute inset-0"
-                                        animate={{
-                                            borderColor: ['#30D5C8', '#30D5C8/50', '#30D5C8'],
-                                        }}
-                                        transition={{
-                                            duration: 2,
-                                            repeat: Infinity,
-                                            ease: "linear"
-                                        }}
-                                        style={{
-                                            border: '2px solid',
-                                            borderRadius: 'inherit',
-                                        }}
-                                    />
-                                    <GoogleIcon className="mr-2 h-4 w-4" />
-                                    Continue with Google
-                                </Button>
+                              <GoogleSignInButton
+                                className="w-full relative overflow-hidden bg-[#008080] text-white hover:bg-[#008080]/90"
+                                variant="outline"
+                              />
                             </motion.div>
                         </motion.form>
                     </motion.div>
@@ -492,29 +474,10 @@ export default function LoginPage() {
                             </div>
 
                             <motion.div variants={buttonVariants} whileHover="hover" whileTap="tap">
-                                <Button
-                                    type="button"
-                                    variant="outline"
-                                    className="w-full relative overflow-hidden bg-[#008080] text-white hover:bg-[#008080]/90"
-                                >
-                                    <motion.div
-                                        className="absolute inset-0"
-                                        animate={{
-                                            borderColor: ['#30D5C8', '#30D5C8/50', '#30D5C8'],
-                                        }}
-                                        transition={{
-                                            duration: 2,
-                                            repeat: Infinity,
-                                            ease: "linear"
-                                        }}
-                                        style={{
-                                            border: '2px solid',
-                                            borderRadius: 'inherit',
-                                        }}
-                                    />
-                                    <GoogleIcon className="mr-2 h-4 w-4" />
-                                    Continue with Google
-                                </Button>
+                              <GoogleSignInButton
+                                className="w-full relative overflow-hidden bg-[#008080] text-white hover:bg-[#008080]/90"
+                                variant="outline"
+                              />
                             </motion.div>
                         </motion.form>
                     </motion.div>

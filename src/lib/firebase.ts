@@ -25,6 +25,8 @@ const app = initializeApp(firebaseConfig)
 // Initialize Authentication
 export const auth = getAuth(app)
 export const googleProvider = new GoogleAuthProvider()
+// Prompt user to select account when signing in
+googleProvider.setCustomParameters({ prompt: 'select_account' })
 
 // Initialize Realtime Database (for n8n automation triggers)
 export const database = getDatabase(app, firebaseConfig.databaseURL)
