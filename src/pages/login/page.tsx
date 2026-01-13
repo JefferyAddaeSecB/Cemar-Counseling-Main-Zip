@@ -291,7 +291,7 @@ export default function LoginPage() {
                                     onChange={handleLoginChange}
                                     placeholder="Enter your email"
                                     required
-                                    className="transition-all duration-300 focus:ring-2 focus:ring-[#30D5C8]/50 placeholder:text-black/70 bg-white dark:bg-white text-black dark:text-black"
+                                    className="transition-all duration-300 focus:ring-2 focus:ring-cyan-400/30 placeholder:text-black/70 bg-white dark:bg-white text-black dark:text-black"
                                 />
                             </motion.div>
                             <motion.div variants={inputVariants} className="space-y-2">
@@ -309,7 +309,7 @@ export default function LoginPage() {
                                     onChange={handleLoginChange}
                                     placeholder="Enter your password"
                                     required
-                                    className="transition-all duration-300 focus:ring-2 focus:ring-[#30D5C8]/50 placeholder:text-black/70 bg-white dark:bg-white text-black dark:text-black"
+                                    className="transition-all duration-300 focus:ring-2 focus:ring-cyan-400/30 placeholder:text-black/70 bg-white dark:bg-white text-black dark:text-black"
                                 />
                             </motion.div>
 
@@ -406,7 +406,7 @@ export default function LoginPage() {
                                     onChange={handleSignupChange}
                                     placeholder="Enter your full name"
                                     required
-                                    className="transition-all duration-300 focus:ring-2 focus:ring-[#30D5C8]/50 placeholder:text-black/70 bg-white dark:bg-white text-black dark:text-black"
+                                    className="transition-all duration-300 focus:ring-2 focus:ring-cyan-400/30 placeholder:text-black/70 bg-white dark:bg-white text-black dark:text-black"
                                 />
                             </motion.div>
                             <motion.div variants={inputVariants} className="space-y-2">
@@ -419,7 +419,7 @@ export default function LoginPage() {
                                     onChange={handleSignupChange}
                                     placeholder="Enter your email"
                                     required
-                                    className="transition-all duration-300 focus:ring-2 focus:ring-[#30D5C8]/50 placeholder:text-black/70 bg-white dark:bg-white text-black dark:text-black"
+                                    className="transition-all duration-300 focus:ring-2 focus:ring-cyan-400/30 placeholder:text-black/70 bg-white dark:bg-white text-black dark:text-black"
                                 />
                             </motion.div>
                             <motion.div variants={inputVariants} className="space-y-2">
@@ -432,7 +432,7 @@ export default function LoginPage() {
                                     onChange={handleSignupChange}
                                     placeholder="Enter your password"
                                     required
-                                    className="transition-all duration-300 focus:ring-2 focus:ring-[#30D5C8]/50 placeholder:text-black/70 bg-white dark:bg-white text-black dark:text-black"
+                                    className="transition-all duration-300 focus:ring-2 focus:ring-cyan-400/30 placeholder:text-black/70 bg-white dark:bg-white text-black dark:text-black"
                                 />
                             </motion.div>
                             <motion.div variants={inputVariants} className="space-y-2">
@@ -445,7 +445,7 @@ export default function LoginPage() {
                                     onChange={handleSignupChange}
                                     placeholder="Confirm your password"
                                     required
-                                    className="transition-all duration-300 focus:ring-2 focus:ring-[#30D5C8]/50 placeholder:text-black/70 bg-white dark:bg-white text-black dark:text-black"
+                                    className="transition-all duration-300 focus:ring-2 focus:ring-cyan-400/30 placeholder:text-black/70 bg-white dark:bg-white text-black dark:text-black"
                                 />
                             </motion.div>
 

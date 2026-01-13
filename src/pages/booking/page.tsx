@@ -89,7 +89,7 @@ export default function BookingPage() {
               >
                 <div className="flex items-center justify-between mb-4">
                   <div>
-                    <h2 className="text-2xl font-bold text-white">
+                    <h2 className="text-2xl font-bold text-black">
                       {services.find(s => s.key === selectedService)?.title}
                     </h2>
                     <p className="text-base text-black font-medium mt-2">
