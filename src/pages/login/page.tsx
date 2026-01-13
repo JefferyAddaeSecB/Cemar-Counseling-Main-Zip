@@ -147,7 +147,8 @@ export default function LoginPage() {
       const returnUrl = params.get('returnUrl')
       navigate(returnUrl || '/')
     } catch (err) {
-      setError("Failed to login. Please check your credentials.")
+      const message = (err as any)?.message || 'Failed to login. Please check your credentials.'
+      setError(message)
     } finally {
       setIsLoading(false)
     }
@@ -170,7 +171,8 @@ export default function LoginPage() {
       const returnUrl = params.get('returnUrl')
       navigate(returnUrl || '/')
     } catch (err) {
-      setError("Failed to create account. Please try again.")
+      const message = (err as any)?.message || 'Failed to create account. Please try again.'
+      setError(message)
     } finally {
       setIsLoading(false)
     }

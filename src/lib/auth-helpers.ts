@@ -1,9 +1,10 @@
-import { 
-  signInWithPopup, 
+import {
+  signInWithPopup,
   signOut as firebaseSignOut,
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
-  UserCredential
+  updateProfile,
+  User as FirebaseUser
 } from 'firebase/auth'
 import { doc, setDoc, getDoc, serverTimestamp } from 'firebase/firestore'
 import { auth, googleProvider, firestore } from './firebase'
@@ -130,30 +131,38 @@ export async function signInWithGoogle(): Promise<User> {
 export async function signup(name: string, email: string, password: string): Promise<User> {
   try {
     const result = await createUserWithEmailAndPassword(auth, email, password)
-    const user = result.user
+    const firebaseUser: FirebaseUser = result.user
 
-    // Create user object
+    // Attempt to set the displayName on the Firebase Auth user
+    try {
+      await updateProfile(firebaseUser, { displayName: name })
+    } catch (updErr) {
+      console.warn('Warning: could not update profile displayName', updErr)
+    }
+
+    // Create user object for app
     const userData: User = {
-      id: user.uid,
+      id: firebaseUser.uid,
       name: name,
       email: email,
-      avatar: undefined,
+      avatar: firebaseUser.photoURL || undefined,
     }
 
     // Save to Firestore
-    await saveUserToFirestore(user.uid, {
+    await saveUserToFirestore(firebaseUser.uid, {
       ...userData,
       role: 'client',
     })
 
     // Save to localStorage
     saveUserToLocalStorage(userData)
-    setLoggedIn(true, user.uid)
+    setLoggedIn(true, firebaseUser.uid)
 
     return userData
-  } catch (error) {
-    console.error("Error signing up:", error)
-    throw error
+  } catch (error: any) {
+    console.error('Error signing up:', error)
+    const message = error?.message || 'Failed to create account'
+    throw new Error(message)
   }
 }
 
