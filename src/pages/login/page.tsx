@@ -122,7 +122,11 @@ export default function LoginPage() {
     if (checkIsLoggedIn()) {
       const params = new URLSearchParams(location.search)
       const returnUrl = params.get('returnUrl')
-      navigate(returnUrl || '/')
+      if (returnUrl) {
+        navigate(returnUrl)
+      } else {
+        navigate('/')
+      }
     }
   }, [navigate, location])
 
@@ -145,7 +149,11 @@ export default function LoginPage() {
       await login(loginData.email, loginData.password)
       const params = new URLSearchParams(location.search)
       const returnUrl = params.get('returnUrl')
-      navigate(returnUrl || '/')
+      if (returnUrl) {
+        navigate(returnUrl)
+      } else {
+        navigate('/')
+      }
     } catch (err) {
       const message = (err as any)?.message || 'Failed to login. Please check your credentials.'
       setError(message)
@@ -169,7 +177,11 @@ export default function LoginPage() {
       await signup(signupData.name, signupData.email, signupData.password)
       const params = new URLSearchParams(location.search)
       const returnUrl = params.get('returnUrl')
-      navigate(returnUrl || '/')
+      if (returnUrl) {
+        navigate(returnUrl)
+      } else {
+        navigate('/')
+      }
     } catch (err) {
       const message = (err as any)?.message || 'Failed to create account. Please try again.'
       setError(message)

@@ -135,7 +135,7 @@ const Header = () => {
                                 if (checkIsLoggedIn()) {
                                     navigate('/booking');
                                 } else {
-                                    navigate('/login');
+                                    navigate('/login?returnUrl=/booking');
                                 }
                             }}
                             className="bg-[#30D5C8] hover:bg-[#30D5C8]/90 text-white"
@@ -199,7 +199,7 @@ const Header = () => {
                                     if (checkIsLoggedIn()) {
                                         navigate('/booking');
                                     } else {
-                                        navigate('/login');
+                                        navigate('/login?returnUrl=/booking');
                                     }
                                     setIsMenuOpen(false);
                                 }}
