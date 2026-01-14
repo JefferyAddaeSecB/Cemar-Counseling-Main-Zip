@@ -8,7 +8,8 @@ export default function BookingPage() {
 
   // map services to Calendly URLs
   const services = [
-    { key: 'individual', title: 'Individual Counseling', description: 'Select this to schedule individual counseling.', url: 'https://calendly.com/cemarcounseling-info/30min?hide_event_type_details=1&hide_gdpr_banner=1' },
+    { key: 'online-individual', title: 'Online Individual Counseling', description: 'Select this to schedule an online individual counseling session.', url: 'https://calendly.com/cemarcounseling-info/30min?hide_event_type_details=1&hide_gdpr_banner=1' },
+    { key: 'inperson-individual', title: 'In-Person Individual Counseling', description: 'Select this to schedule an in-person individual counseling session.', url: 'https://calendly.com/cemarcounseling-info/in-person-individual-session?hide_event_type_details=1&hide_gdpr_banner=1' },
     { key: 'group', title: 'Group Counseling', description: 'Select this to schedule group counseling.', url: 'https://calendly.com/cemarcounseling-info/group-counseling?hide_event_type_details=1&hide_gdpr_banner=1' },
     { key: 'couples', title: 'Couples Counseling', description: 'Select this to schedule couples counseling.', url: 'https://calendly.com/cemarcounseling-info/couples-counseling?hide_event_type_details=1&hide_gdpr_banner=1' },
     { key: 'free15', title: 'Free 15-Min Consultation', description: 'Select this to schedule free 15-min consultation.', url: 'https://calendly.com/cemarcounseling-info/new-meeting?hide_event_type_details=1&hide_gdpr_banner=1' },
