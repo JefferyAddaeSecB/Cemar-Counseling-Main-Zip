@@ -69,8 +69,12 @@ function saveUserToLocalStorage(user: User): void {
 async function saveUserToFirestore(uid: string, userData: Partial<UserProfile>): Promise<void> {
   try {
     const userRef = doc(firestore, 'users', uid)
+    // Remove undefined fields (especially avatar)
+    const filteredUserData = Object.fromEntries(
+      Object.entries(userData).filter(([_, v]) => v !== undefined)
+    )
     await setDoc(userRef, {
-      ...userData,
+      ...filteredUserData,
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
     }, { merge: true })
@@ -169,6 +173,9 @@ export async function signup(name: string, email: string, password: string): Pro
 
 // Email/Password Sign-In
 export async function login(email: string, password: string): Promise<User> {
+  if (!email || !password) {
+    throw new Error('Email and password are required.')
+  }
   try {
     const result = await signInWithEmailAndPassword(auth, email, password)
     const user = result.user
