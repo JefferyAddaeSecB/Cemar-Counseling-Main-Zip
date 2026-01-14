@@ -387,8 +387,7 @@ export default function ServicesPage() {
                   <Button
                     className="bg-[#30D5C8] text-black hover:bg-[#30D5C8]/90"
                     onClick={() => {
-                      navigate('/booking');
-                      setTimeout(() => window.scrollTo({ top: 0, behavior: 'smooth' }), 100);
+                      navigate('/booking#booking-top');
                     }}
                   >
                     Book Now
@@ -577,8 +576,7 @@ export default function ServicesPage() {
                 className="text-lg bg-[#008080] hover:bg-[#008080]/90 text-white shadow-lg"
                 onClick={() => {
                   if (checkIsLoggedIn()) {
-                    navigate("/booking");
-                    setTimeout(() => window.scrollTo({ top: 0, behavior: 'smooth' }), 100);
+                    navigate("/booking#booking-top");
                   } else {
                     navigate("/login");
                   }

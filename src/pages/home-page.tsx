@@ -365,8 +365,18 @@ export default function Home() {
             <motion.h2 variants={variants.fadeIn} className="text-3xl md:text-4xl font-bold mb-4 text-white">Begin Your Journey Today</motion.h2>
             <motion.p variants={variants.fadeIn} className="text-xl text-white/90 mb-8">Take the first step towards better mental health and well-being. Our team of professionals is here to support you.</motion.p>
             <motion.div variants={variants.fadeIn} whileHover={{ scale: 1.03 }}>
-              <Button asChild size="lg" className="text-lg bg-[#008080] hover:bg-[#008080]/90 text-white shadow-lg">
-                <Link to={bookingLink}>Book an Appointment</Link>
+              <Button
+                size="lg"
+                className="text-lg bg-[#008080] hover:bg-[#008080]/90 text-white shadow-lg"
+                onClick={() => {
+                  if (isLoggedIn) {
+                    navigate('/booking#booking-top');
+                  } else {
+                    navigate('/login?returnUrl=/booking#booking-top');
+                  }
+                }}
+              >
+                Book an Appointment
               </Button>
             </motion.div>
           </motion.div>

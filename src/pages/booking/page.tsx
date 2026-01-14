@@ -43,7 +43,7 @@ export default function BookingPage() {
               transition={{ duration: 0.5 }}
               className="text-center"
             >
-              <h1 className="text-4xl font-bold mb-4 text-black dark:text-white/90">Book an Appointment</h1>
+              <h1 id="booking-top" className="text-4xl font-bold mb-4 text-black dark:text-white/90">Book an Appointment</h1>
               <p className="text-lg text-black/70 mb-8 dark:text-white/70">
                 Choose the counseling service that best fits your needs, then select your preferred date and time to get started on your wellness journey.
               </p>
