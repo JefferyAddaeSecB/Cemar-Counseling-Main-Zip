@@ -212,8 +212,18 @@ export default function Home() {
             </motion.div>
 
             <motion.div initial="hidden" animate="visible" variants={variants.fadeIn} whileHover={{ scale: 1.03 }}>
-              <Button asChild size="lg" className="text-lg bg-[#008080] hover:bg-[#008080]/90 text-white shadow-lg">
-                <Link to={bookingLink}>Book an Appointment</Link>
+              <Button
+                size="lg"
+                className="text-lg bg-[#008080] hover:bg-[#008080]/90 text-white shadow-lg"
+                onClick={() => {
+                  if (isLoggedIn) {
+                    navigate('/booking');
+                  } else {
+                    navigate('/login?returnUrl=/booking');
+                  }
+                }}
+              >
+                Book an Appointment
               </Button>
             </motion.div>
           </div>

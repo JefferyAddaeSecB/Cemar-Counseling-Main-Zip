@@ -16,6 +16,8 @@ export function GoogleSignInButton({
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const navigate = useNavigate()
+  const searchParams = new URLSearchParams(window.location.search)
+  const returnUrl = searchParams.get('returnUrl')
 
   const handleGoogleSignIn = async () => {
     setIsLoading(true)
@@ -24,10 +26,13 @@ export function GoogleSignInButton({
     try {
       const user = await signInWithGoogle()
       console.log('✅ Successfully signed in:', user)
-      
-      // Redirect to home page after successful login
+      // Redirect to returnUrl if present, else home
       setTimeout(() => {
-        navigate('/')
+        if (returnUrl) {
+          navigate(returnUrl)
+        } else {
+          navigate('/')
+        }
       }, 500)
     } catch (err: any) {
       const errorMessage = err?.message || 'Failed to sign in with Google'
