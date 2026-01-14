@@ -100,13 +100,24 @@ export default function ServicesPage() {
 
   const pricingPlans = [
     {
-      title: "Individual Session",
-      price: "$160",
+      title: "Online Individual Session",
+      price: "$175",
       description: "Per 50-minute session",
       features: [
         "One-on-one attention",
         "Personalized treatment plan",
-        "In-person or virtual options",
+        "Virtual/telehealth session",
+        "Flexible scheduling",
+      ],
+    },
+    {
+      title: "In-Person Individual Session",
+      price: "$185",
+      description: "Per 50-minute session",
+      features: [
+        "One-on-one attention",
+        "Personalized treatment plan",
+        "In-person at our office",
         "Flexible scheduling",
       ],
     },
@@ -374,10 +385,13 @@ export default function ServicesPage() {
                 </motion.div>
                 <motion.div variants={featureVariants}>
                   <Button
-                    asChild
                     className="bg-[#30D5C8] text-black hover:bg-[#30D5C8]/90"
+                    onClick={() => {
+                      navigate('/booking');
+                      setTimeout(() => window.scrollTo({ top: 0, behavior: 'smooth' }), 100);
+                    }}
                   >
-                    <Link to="/booking">Book Now</Link>
+                    Book Now
                   </Button>
                 </motion.div>
               </motion.div>
@@ -563,9 +577,10 @@ export default function ServicesPage() {
                 className="text-lg bg-[#008080] hover:bg-[#008080]/90 text-white shadow-lg"
                 onClick={() => {
                   if (checkIsLoggedIn()) {
-                    navigate("/booking")
+                    navigate("/booking");
+                    setTimeout(() => window.scrollTo({ top: 0, behavior: 'smooth' }), 100);
                   } else {
-                    navigate("/login")
+                    navigate("/login");
                   }
                 }}
               >
