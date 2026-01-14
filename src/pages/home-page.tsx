@@ -263,7 +263,7 @@ export default function Home() {
                 <p className="text-muted-foreground mb-6">One-on-one sessions with our experienced therapists to address your specific needs and concerns.</p>
               </motion.div>
               <motion.div variants={variants.fadeIn} whileHover={{ scale: 1.02 }}>
-                <Button className="bg-[#30D5C8] text-black hover:bg-[#30D5C8]/90">Learn More</Button>
+                <Button className="bg-[#30D5C8] text-black hover:bg-[#30D5C8]/90" onClick={() => navigate('/services#one-on-one')}>Learn More</Button>
               </motion.div>
             </motion.div>
 
@@ -277,7 +277,7 @@ export default function Home() {
                 <p className="text-muted-foreground mb-6">Connect with others facing similar challenges in a supportive group environment led by our counselors.</p>
               </motion.div>
               <motion.div variants={variants.fadeIn} whileHover={{ scale: 1.02 }}>
-                <Button className="bg-[#30D5C8] text-black hover:bg-[#30D5C8]/90">Learn More</Button>
+                <Button className="bg-[#30D5C8] text-black hover:bg-[#30D5C8]/90" onClick={() => navigate('/services#group')}>Learn More</Button>
               </motion.div>
             </motion.div>
 
@@ -291,7 +291,7 @@ export default function Home() {
                 <p className="text-muted-foreground mb-6">Access therapy from the comfort of your home with our secure and confidential online sessions.</p>
               </motion.div>
               <motion.div variants={variants.fadeIn} whileHover={{ scale: 1.02 }}>
-                <Button className="bg-[#30D5C8] text-black hover:bg-[#30D5C8]/90">Learn More</Button>
+                <Button className="bg-[#30D5C8] text-black hover:bg-[#30D5C8]/90" onClick={() => navigate('/services#online')}>Learn More</Button>
               </motion.div>
             </motion.div>
           </div>
