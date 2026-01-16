@@ -116,6 +116,7 @@ export default function LoginPage() {
     confirmPassword: "",
   })
   const [error, setError] = useState("")
+  const [activeTab, setActiveTab] = useState<string>(defaultTab)
 
   useEffect(() => {
     // If already logged in, redirect to returnUrl or home
@@ -272,7 +273,7 @@ export default function LoginPage() {
                 }}
               />
 
-              <Tabs defaultValue="login" className="w-full relative z-10">
+              <Tabs value={activeTab} onValueChange={(val) => { setActiveTab(val); setError("") }} className="w-full relative z-10">
                 <TabsList className="grid w-full grid-cols-2 mb-6 bg-[#008080]">
                   <TabsTrigger value="login" className="data-[state=active]:bg-[#30D5C8]">
                     Login
@@ -337,6 +338,19 @@ export default function LoginPage() {
                                     {error}
                                 </motion.div>
                             )}
+
+                            <div className="text-sm text-white space-y-1">
+                              <div>
+                                Don&apos;t have an account?{' '}
+                                <button
+                                  type="button"
+                                  onClick={() => setActiveTab('signup')}
+                                  className="underline text-white hover:text-white/80 cursor-pointer"
+                                >
+                                  Sign up
+                                </button>
+                              </div>
+                            </div>
 
                             <motion.div variants={buttonVariants} whileHover="hover" whileTap="tap">
                                 <Button

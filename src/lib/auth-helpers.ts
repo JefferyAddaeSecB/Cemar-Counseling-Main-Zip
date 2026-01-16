@@ -3,7 +3,12 @@ import {
   signOut as firebaseSignOut,
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
+  sendPasswordResetEmail,
   updateProfile,
+  updatePassword,
+  updateEmail,
+  reauthenticateWithCredential,
+  EmailAuthProvider,
   User as FirebaseUser
 } from 'firebase/auth'
 import { doc, setDoc, getDoc, serverTimestamp } from 'firebase/firestore'
@@ -60,6 +65,78 @@ export function getCurrentUser(): User | null {
   }
 }
 
+// Update account profile (name/email/password) with optional reauthentication
+export async function updateAccountProfile(options: {
+  name?: string
+  email?: string
+  currentPassword?: string
+  newPassword?: string
+}): Promise<User> {
+  const user = auth.currentUser
+  if (!user) throw new Error('You must be logged in to update your account.')
+
+  const { name, email, currentPassword, newPassword } = options
+
+  // Reauthenticate if changing sensitive fields
+  if ((newPassword || email) && !currentPassword) {
+    throw new Error('Please enter your current password to update email or password.')
+  }
+
+  try {
+    if (currentPassword && (newPassword || email)) {
+      const credential = EmailAuthProvider.credential(user.email || '', currentPassword)
+      await reauthenticateWithCredential(user, credential)
+    }
+
+    if (newPassword) {
+      await updatePassword(user, newPassword)
+    }
+
+    if (email && email !== user.email) {
+      await updateEmail(user, email)
+    }
+
+    if (name && name !== user.displayName) {
+      await updateProfile(user, { displayName: name })
+    }
+
+    // Persist in Firestore
+    await saveUserToFirestore(user.uid, {
+      name: name ?? user.displayName ?? user.email?.split('@')[0],
+      email: email ?? user.email ?? '',
+      avatar: user.photoURL || undefined,
+      role: 'client',
+    })
+
+    const userData: User = {
+      id: user.uid,
+      name: name ?? user.displayName ?? user.email?.split('@')[0] ?? 'User',
+      email: email ?? user.email ?? '',
+      avatar: user.photoURL || undefined,
+    }
+
+    saveUserToLocalStorage(userData)
+    setLoggedIn(true, user.uid)
+    return userData
+  } catch (error) {
+    console.error('Error updating account profile:', error)
+    const msg = mapFirebaseAuthError(error)
+    throw new Error(msg)
+  }
+}
+
+// Trigger password reset email
+export async function sendPasswordReset(email: string): Promise<void> {
+  if (!email) throw new Error('Email is required to reset your password.')
+  try {
+    await sendPasswordResetEmail(auth, email)
+  } catch (error) {
+    console.error('Error sending password reset email:', error)
+    const msg = mapFirebaseAuthError(error)
+    throw new Error(msg)
+  }
+}
+
 // Store user in localStorage
 function saveUserToLocalStorage(user: User): void {
   localStorage.setItem("userData", JSON.stringify(user))
@@ -97,6 +174,29 @@ async function getUserFromFirestore(uid: string): Promise<UserProfile | null> {
   } catch (error) {
     console.error("Error fetching user from Firestore:", error)
     return null
+  }
+}
+
+// Expose a profile fetcher for client pages
+export async function fetchUserProfile(uid: string): Promise<UserProfile | null> {
+  return getUserFromFirestore(uid)
+}
+
+// Update notification preferences in Firestore
+export async function updateNotificationPreferences(uid: string, prefs: { pushNotifications?: boolean; emailUpdates?: boolean }): Promise<void> {
+  try {
+    const userRef = doc(firestore, 'users', uid)
+    await setDoc(userRef, {
+      notificationPreferences: {
+        pushNotifications: prefs.pushNotifications ?? false,
+        emailUpdates: prefs.emailUpdates ?? false,
+      },
+      updatedAt: serverTimestamp(),
+    }, { merge: true })
+  } catch (error) {
+    console.error('Error updating notification preferences:', error)
+    const msg = mapFirebaseAuthError(error)
+    throw new Error(msg)
   }
 }
 
@@ -223,11 +323,17 @@ function mapFirebaseAuthError(err: any): string {
     case 'auth/wrong-password':
       return 'Incorrect password. Please try again.'
     case 'auth/user-not-found':
-      return 'No user found with this email. Please sign up first.'
+      return "We couldn't find an account with that email. Want to sign up instead?"
     case 'auth/user-disabled':
       return 'This user account has been disabled.'
     case 'auth/popup-closed-by-user':
       return 'Sign-in popup closed before completing sign-in.'
+    case 'auth/invalid-credential':
+      return 'Invalid email or password. Please try again or reset your password.'
+    case 'auth/requires-recent-login':
+      return 'Please re-enter your current password to make this change.'
+    case 'auth/too-many-requests':
+      return 'Too many attempts. Please wait a moment and try again.'
     default:
       return err.message || 'Authentication error'
   }

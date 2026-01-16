@@ -3,8 +3,8 @@ import { Button } from "../../components/ui/button"
 import { Input } from "../../components/ui/input"
 import { Label } from "../../components/ui/label"
 import { motion } from "framer-motion"
-import { useNavigate } from "react-router-dom"
-import { getCurrentUser, type User, checkIsLoggedIn } from "../../lib/auth-helpers"
+import { Link, useNavigate } from "react-router-dom"
+import { getCurrentUser, type User, checkIsLoggedIn, updateAccountProfile } from "../../lib/auth-helpers"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../../components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "../../components/ui/avatar"
 import { Camera, CheckCircle } from "lucide-react"
@@ -98,13 +98,20 @@ export default function AccountSettingsPage() {
       }
     }
 
-    if (user) {
-      const updatedUser = {
-        ...user,
+    if (!user) {
+      setError("You need to be logged in to update your account.")
+      return
+    }
+
+    try {
+      setIsSaving(true)
+      const updatedUser = await updateAccountProfile({
         name: formData.name,
         email: formData.email,
-      }
-      localStorage.setItem("userData", JSON.stringify(updatedUser))
+        currentPassword: formData.currentPassword || undefined,
+        newPassword: formData.newPassword || undefined,
+      })
+
       setUser(updatedUser)
       window.dispatchEvent(new Event("storage"))
       setShowSuccessDialog(true)
@@ -116,6 +123,11 @@ export default function AccountSettingsPage() {
         newPassword: "",
         confirmPassword: "",
       }))
+    } catch (err) {
+      const message = (err as any)?.message || "Failed to update account. Please try again."
+      setError(message)
+    } finally {
+      setIsSaving(false)
     }
   }
 
@@ -320,6 +332,13 @@ export default function AccountSettingsPage() {
                     </motion.div>
                   )}
 
+                  <div className="text-sm text-muted-foreground">
+                    Forgot your password?{' '}
+                    <Link to="/forgot-password" className="text-[#008080] hover:underline">
+                      Reset it here
+                    </Link>
+                  </div>
+
                   <div className="flex justify-end space-x-4">
                     <Button
                       type="button"
@@ -331,8 +350,9 @@ export default function AccountSettingsPage() {
                     <Button
                       type="submit"
                       className="bg-[#78ede5] text-black hover:bg-[#78ede5]/90"
+                      disabled={isSaving}
                     >
-                      Save Changes
+                      {isSaving ? 'Saving...' : 'Save Changes'}
                     </Button>
                   </div>
                 </form>

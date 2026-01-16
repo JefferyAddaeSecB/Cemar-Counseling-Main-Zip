@@ -4,7 +4,7 @@ import { Input } from "../../components/ui/input"
 import { Label } from "../../components/ui/label"
 import { motion } from "framer-motion"
 import { useNavigate } from "react-router-dom"
-import { getCurrentUser, type User, checkIsLoggedIn } from "../../lib/auth-helpers"
+import { getCurrentUser, type User, checkIsLoggedIn, fetchUserProfile, updateNotificationPreferences } from "../../lib/auth-helpers"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../../components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "../../components/ui/avatar"
 import { Switch } from "../../components/ui/switch"
@@ -36,6 +36,8 @@ export default function SettingsPage() {
     fontSize: "medium",
     language: "en",
   })
+  const [prefError, setPrefError] = useState("")
+  const [isPrefSaving, setIsPrefSaving] = useState(false)
 
   useEffect(() => {
     const isLoggedIn = checkIsLoggedIn()
@@ -63,6 +65,30 @@ export default function SettingsPage() {
     }
   }, [])
 
+  // Load notification prefs from Firestore when available
+  useEffect(() => {
+    const loadPrefs = async () => {
+      if (!user?.id) return
+      try {
+        const profile = await fetchUserProfile(user.id)
+        if (profile && (profile as any).notificationPreferences) {
+          const np = (profile as any).notificationPreferences as { pushNotifications?: boolean; emailUpdates?: boolean }
+          const merged = {
+            ...preferences,
+            notifications: np.pushNotifications ?? preferences.notifications,
+            emailUpdates: np.emailUpdates ?? preferences.emailUpdates,
+          }
+          setPreferences(merged)
+          localStorage.setItem("sitePreferences", JSON.stringify(merged))
+        }
+      } catch (err) {
+        console.warn('Could not load notification preferences', err)
+      }
+    }
+    loadPrefs()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.id])
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     // In a real app, you would make an API call here
@@ -77,10 +103,33 @@ export default function SettingsPage() {
     navigate("/profile")
   }
 
-  const handlePreferenceChange = (key: keyof typeof preferences, value: any) => {
-    const newPreferences = { ...preferences, [key]: value }
-    setPreferences(newPreferences)
-    localStorage.setItem("sitePreferences", JSON.stringify(newPreferences))
+  const handlePreferenceChange = async (key: keyof typeof preferences, value: any) => {
+    setPrefError("")
+    const optimistic = { ...preferences, [key]: value }
+    setPreferences(optimistic)
+    localStorage.setItem("sitePreferences", JSON.stringify(optimistic))
+
+    if (!user?.id) return
+
+    // Persist to Firestore for future notifications
+    const payload = {
+      pushNotifications: key === "notifications" ? value : optimistic.notifications,
+      emailUpdates: key === "emailUpdates" ? value : optimistic.emailUpdates,
+    }
+
+    try {
+      setIsPrefSaving(true)
+      await updateNotificationPreferences(user.id, payload)
+    } catch (err) {
+      const message = (err as any)?.message || "Could not save notification preference."
+      setPrefError(message)
+      // revert local state
+      const reverted = { ...optimistic, [key]: !value }
+      setPreferences(reverted)
+      localStorage.setItem("sitePreferences", JSON.stringify(reverted))
+    } finally {
+      setIsPrefSaving(false)
+    }
   }
 
   if (isLoading) {
@@ -323,6 +372,13 @@ export default function SettingsPage() {
                       )}
                     />
                   </div>
+
+                  {prefError && (
+                    <p className="text-sm text-red-500">{prefError}</p>
+                  )}
+                  {isPrefSaving && (
+                    <p className="text-sm text-muted-foreground">Saving preferences...</p>
+                  )}
                 </CardContent>
               </Card>
             </div>

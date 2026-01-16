@@ -5,6 +5,8 @@ import { Button } from "../../components/ui/button"
 import { motion } from "framer-motion"
 import { useNavigate } from "react-router-dom"
 import { getCurrentUser, type User, checkIsLoggedIn } from "../../lib/auth-helpers"
+import { firestore } from "../../lib/firebase"
+import { collection, query, where, onSnapshot } from 'firebase/firestore'
 import { Avatar, AvatarFallback, AvatarImage } from "../../components/ui/avatar"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../../components/ui/card"
 import { LogOut, Settings, Camera } from "lucide-react"
@@ -17,6 +19,8 @@ export default function ProfilePage() {
   const navigate = useNavigate()
   const [user, setUser] = useState<User | null>(null)
   const [isLoading, setIsLoading] = useState(true)
+  const [upcomingAppointments, setUpcomingAppointments] = useState<any[]>([])
+  const [pastAppointments, setPastAppointments] = useState<any[]>([])
   const fileInputRef = useRef<HTMLInputElement>(null)
   const { theme } = useTheme()
 
@@ -32,6 +36,22 @@ export default function ProfilePage() {
     const currentUser = getCurrentUser()
     setUser(currentUser)
     setIsLoading(false)
+    // Subscribe to appointments for this user
+    if (currentUser?.id) {
+      const q = query(collection(firestore, 'appointments'), where('clientId', '==', currentUser.id))
+      const unsubscribe = onSnapshot(q, (snap) => {
+        const docs = snap.docs.map(d => ({ id: d.id, ...(d.data() as any) }))
+        const now = new Date()
+        const upcoming = docs.filter(a => (a.startTime ? a.startTime.toDate() > now : a.status === 'upcoming'))
+        const past = docs.filter(a => (a.startTime ? a.startTime.toDate() <= now : a.status === 'completed'))
+        // sort
+        upcoming.sort((x, y) => (x.startTime?.toDate?.() || 0) - (y.startTime?.toDate?.() || 0))
+        past.sort((x, y) => (y.startTime?.toDate?.() || 0) - (x.startTime?.toDate?.() || 0))
+        setUpcomingAppointments(upcoming)
+        setPastAppointments(past)
+      })
+      return () => unsubscribe()
+    }
   }, [navigate])
 
   const handleLogout = () => {
@@ -228,12 +248,27 @@ export default function ProfilePage() {
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-4">
-                      <div className="bg-muted p-4 rounded-lg text-center">
-                        <p className="text-muted-foreground">You don't have any upcoming appointments.</p>
-                        <Button className="mt-4" asChild onClick={() => navigate("/booking")}>
-                          Book an Appointment
-                        </Button>
-                      </div>
+                      {upcomingAppointments.length === 0 ? (
+                        <div className="bg-muted p-4 rounded-lg text-center">
+                          <p className="text-muted-foreground">You don't have any upcoming appointments.</p>
+                          <Button className="mt-4" onClick={() => navigate("/booking")}>Book an Appointment</Button>
+                        </div>
+                      ) : (
+                        upcomingAppointments.map((a) => (
+                          <div key={a.id} className="p-4 rounded-lg bg-muted/50 border">
+                            <div className="flex items-center justify-between">
+                              <div>
+                                <div className="font-semibold">{a.serviceTitle || a.serviceKey}</div>
+                                <div className="text-sm text-muted-foreground">{a.clientEmail}</div>
+                                <div className="text-sm mt-1">{a.startTime ? a.startTime.toDate().toLocaleString() : 'TBD'}</div>
+                              </div>
+                              <div>
+                                <span className="inline-block px-3 py-1 rounded-full bg-[#30D5C8] text-black">{a.status}</span>
+                              </div>
+                            </div>
+                          </div>
+                        ))
+                      )}
                     </div>
                   </CardContent>
                 </Card>
@@ -253,9 +288,26 @@ export default function ProfilePage() {
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-4">
-                      <div className="bg-muted p-4 rounded-lg text-center">
-                        <p className="text-muted-foreground">You don't have any past appointments.</p>
-                      </div>
+                      {pastAppointments.length === 0 ? (
+                        <div className="bg-muted p-4 rounded-lg text-center">
+                          <p className="text-muted-foreground">You don't have any past appointments.</p>
+                        </div>
+                      ) : (
+                        pastAppointments.map((a) => (
+                          <div key={a.id} className="p-4 rounded-lg bg-muted/50 border">
+                            <div className="flex items-center justify-between">
+                              <div>
+                                <div className="font-semibold">{a.serviceTitle || a.serviceKey}</div>
+                                <div className="text-sm text-muted-foreground">{a.clientEmail}</div>
+                                <div className="text-sm mt-1">{a.startTime ? a.startTime.toDate().toLocaleString() : 'TBD'}</div>
+                              </div>
+                              <div>
+                                <span className="inline-block px-3 py-1 rounded-full bg-gray-200 text-black">{a.status || 'completed'}</span>
+                              </div>
+                            </div>
+                          </div>
+                        ))
+                      )}
                     </div>
                   </CardContent>
                 </Card>

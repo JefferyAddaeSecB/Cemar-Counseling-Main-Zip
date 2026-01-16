@@ -6,6 +6,7 @@ import { CheckCircle } from "lucide-react"
 import { Link, useNavigate } from "react-router-dom"
 import { cn } from "../../lib/utils"
 import { useTheme } from "../../components/theme-provider"
+import { sendPasswordReset } from "../../lib/auth-helpers"
 
 export default function ForgotPasswordPage() {
   const navigate = useNavigate()
@@ -20,12 +21,12 @@ export default function ForgotPasswordPage() {
     setError("")
     setIsLoading(true)
 
-    // Simulate API call
     try {
-      await new Promise(resolve => setTimeout(resolve, 1500))
+      await sendPasswordReset(email)
       setShowSuccess(true)
     } catch (err) {
-      setError("Failed to send reset email. Please try again.")
+      const message = (err as any)?.message || "Failed to send reset email. Please try again."
+      setError(message)
     } finally {
       setIsLoading(false)
     }

@@ -5,6 +5,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { UserPlus, Users, Video } from 'lucide-react';
 import { useEffect, useState, useRef, useCallback, useMemo } from 'react';
+import { TESTIMONIALS } from '../lib/constants';
 import { LazyImage } from '../components/ui/lazy-image';
 import { cn } from '../lib/utils';
 import { useTheme } from '../components/theme-provider';
@@ -21,32 +22,8 @@ export default function Home() {
     []
   );
 
-  const testimonials = useMemo(
-    () => [
-      {
-        img: '/images/client1.jpg',
-        quote:
-          'The counseling sessions have truly transformed my perspective on life. The therapists are compassionate and professional.',
-        name: 'Sarah M.',
-        role: 'Individual Therapy',
-      },
-      {
-        img: '/images/client2.jpg',
-        quote:
-          "Group counseling helped me realize I wasn't alone in my struggles. The supportive community made all the difference.",
-        name: 'James T.',
-        role: 'Group Counseling',
-      },
-      {
-        img: '/images/client3.jpg',
-        quote:
-          'The online sessions fit perfectly into my busy schedule. Quality care from the convenience of my home.',
-        name: 'Emily R.',
-        role: 'Online Sessions',
-      },
-    ],
-    []
-  );
+  // Use centralized constant testimonials (six entries)
+  const testimonials = TESTIMONIALS
 
   // -- Local state ------------------------------------------------------------------
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -136,12 +113,12 @@ export default function Home() {
     return () => safeClearInterval(heroIntervalRef);
   }, [heroImages.length, safeClearInterval]);
 
-  // Testimonials rotation
+  // Testimonials rotation (auto-rotate every 8 seconds per spec)
   useEffect(() => {
     safeClearInterval(testimonialIntervalRef);
     testimonialIntervalRef.current = window.setInterval(() => {
       setTestimonialIndex((i) => (i + 1) % testimonials.length);
-    }, 5000);
+    }, 8000);
 
     return () => safeClearInterval(testimonialIntervalRef);
   }, [testimonials.length, safeClearInterval]);
@@ -298,54 +275,66 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Testimonials Section */}
+      {/* Early Results & Founder Feedback */}
       <section className="py-20 bg-background relative overflow-hidden">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: '-100px' }} className="text-center mb-8">
-            <motion.h2 variants={variants.fadeIn} className={`text-3xl md:text-4xl font-bold mb-2 ${theme === 'dark' ? 'text-white' : 'text-black'}`}>
+          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: '-100px' }} className="text-center mb-6">
+            <motion.h2 variants={variants.fadeIn} className={`text-3xl md:text-4xl font-bold mb-6 text-black`}>
               What Our Clients Say
             </motion.h2>
-            <motion.p variants={variants.fadeIn} className={`text-lg ${theme === 'dark' ? 'text-white/80' : 'text-black/80'} max-w-2xl mx-auto`}>
+            <motion.p variants={variants.fadeIn} className={`text-lg text-black/80 max-w-3xl mx-auto`}>
               Hear from individuals who have experienced positive change through our counseling services.
             </motion.p>
           </motion.div>
 
-          <div className="relative rounded-lg overflow-hidden shadow-lg">
-            <MotionLazyImage src="/images/testimonials-bg.jpg" alt="soft background" className="absolute inset-0 w-full h-full object-cover brightness-[0.65] pointer-events-none" />
+          <div className="max-w-3xl mx-auto">
+            <div className="relative rounded-lg overflow-hidden">
 
-            <div className="relative z-10 px-4 py-12">
-              <div className="relative">
-                <motion.div className="flex" animate={{ x: `-${testimonialIndex * 100}%` }} transition={{ type: 'spring', stiffness: 120, damping: 20 }} style={{ width: `${testimonials.length * 100}%` }}>
-                  {testimonials.map((t, i) => (
-                    <div key={i} className="w-full px-4" style={{ flex: '0 0 100%' }}>
-                      <motion.blockquote initial="hidden" whileInView="visible" variants={variants.card} className="bg-card/80 backdrop-blur-sm rounded-lg p-6 md:p-10 shadow-xl border-2 border-[#30D5C8]/20">
-                        <div className="flex items-center gap-4 mb-4">
-                          <div className="w-16 h-16 rounded-full overflow-hidden flex-shrink-0 ring-2 ring-[#30D5C8]">
-                            <img loading="lazy" src={t.img} alt={`${t.name} avatar`} className="w-full h-full object-cover" onError={(e) => { (e.target as HTMLImageElement).src = '/images/avatar-placeholder.png'; }} />
-                          </div>
-                          <div>
-                            <p className="font-semibold text-[#30D5C8]">{t.name}</p>
-                            <p className="text-sm text-muted-foreground">{t.role}</p>
-                          </div>
+              <MotionLazyImage src="/images/testimonials-bg.jpg" alt="soft background" className="absolute inset-0 w-full h-full object-cover brightness-75 pointer-events-none" />
+              {/* Darker overlay for stronger contrast */}
+              <div className="absolute inset-0 bg-black/50" />
+
+              <div className="relative h-[300px] overflow-hidden">
+                <AnimatePresence mode="wait">
+                  <motion.div
+                    key={testimonialIndex}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -20 }}
+                    transition={{ duration: 0.5 }}
+                    className="absolute inset-0 flex items-center justify-center p-4"
+                  >
+                    <div className="rounded-lg p-6 max-w-2xl w-full">
+                      <div className="flex flex-col items-center justify-center text-center px-4">
+                        <div className="w-20 h-20 rounded-full overflow-hidden mb-4 ring-2 ring-[#30D5C8]">
+                          <img
+                            src={testimonials[testimonialIndex].avatar}
+                            alt={testimonials[testimonialIndex].name}
+                            loading="lazy"
+                            decoding="async"
+                            className="w-full h-full object-cover"
+                            onError={(e) => { (e.target as HTMLImageElement).src = '/images/avatar-placeholder.png' }}
+                          />
                         </div>
 
-                        <motion.p variants={variants.fadeIn} className="text-muted-foreground italic mb-4 md:mb-6">"{t.quote}"</motion.p>
+                        <h3 className="text-xl font-bold text-white mb-2" style={{ textShadow: '0 1px 2px rgba(0,0,0,0.6)' }}>{testimonials[testimonialIndex].name}</h3>
+                        <p className="text-white/80 mb-6" style={{ textShadow: '0 1px 2px rgba(0,0,0,0.6)' }}>{testimonials[testimonialIndex].title}</p>
 
-                        <div className="flex items-center gap-1">{Array.from({ length: 5 }).map((_, s) => (<span key={s} className="text-[#30D5C8]">★</span>))}</div>
-                      </motion.blockquote>
+                        <p className="text-white max-w-2xl italic" style={{ textShadow: '0 2px 6px rgba(0,0,0,0.6)' }}>"{testimonials[testimonialIndex].quote}"</p>
+                      </div>
                     </div>
-                  ))}
-                </motion.div>
-
-                {/* Arrow Buttons */}
-                <button onClick={handlePrevTestimonial} className="absolute top-1/2 left-4 transform -translate-y-1/2 bg-white/10 hover:bg-white/20 text-white p-2 rounded-full shadow-md z-20" aria-label="Previous testimonial">‹</button>
-                <button onClick={handleNextTestimonial} className="absolute top-1/2 right-4 transform -translate-y-1/2 bg-white/10 hover:bg-white/20 text-white p-2 rounded-full shadow-md z-20" aria-label="Next testimonial">›</button>
+                  </motion.div>
+                </AnimatePresence>
               </div>
 
-              {/* Dot Indicators */}
-              <div className="mt-6 flex justify-center items-center gap-3">
-                {testimonials.map((_, idx) => (
-                  <button key={idx} onClick={() => handleManualTestimonialChange(idx)} aria-label={`Go to testimonial ${idx + 1}`} className={`w-3 h-3 rounded-full transition-colors ${testimonialIndex === idx ? 'bg-[#30D5C8]' : 'bg-white/40'}`} />
+              <div className="mt-6 flex justify-center gap-2">
+                {testimonials.map((_, index) => (
+                  <button
+                    key={index}
+                    onClick={() => { setTestimonialIndex(index) }}
+                    className={`w-2 h-2 rounded-full transition-colors duration-300 ${index === testimonialIndex ? 'bg-[#30D5C8]' : 'bg-[#30D5C8]/30'}`}
+                    aria-label={`Go to testimonial ${index + 1}`}
+                  />
                 ))}
               </div>
             </div>

@@ -2,6 +2,9 @@
 
 import { useEffect, useState } from "react"
 import { motion } from "framer-motion"
+import { addDoc, collection, serverTimestamp, Timestamp, query, where, getDocs } from 'firebase/firestore'
+import { firestore, auth } from '../../lib/firebase'
+import { getCurrentUser } from '../../lib/auth-helpers'
 
 export default function BookingPage() {
   const [selectedService, setSelectedService] = useState<string | null>(null)
@@ -23,6 +26,82 @@ export default function BookingPage() {
       (window as any).Calendly.initInlineWidgets()
     }
   }, [selectedUrl])
+
+  // Listen for Calendly events (when user schedules via the inline widget)
+  useEffect(() => {
+    async function handleMessage(e: MessageEvent) {
+      try {
+        const data = e.data || {}
+        if (data.event !== 'calendly.event_scheduled') return
+        const payload = data.payload || {}
+        // Attempt to extract start time and invitee info
+        const eventObj = payload.event || payload // fallback
+        const invitee = payload.invitee || payload.invitee || null
+        const startTimeStr = eventObj?.start_time || eventObj?.startTime || null
+        const inviteeEmail = invitee?.email || payload?.invitee_email || null
+
+        // Prefer Firebase auth current user if available
+        const firebaseUser = auth?.currentUser
+        const currentUser = getCurrentUser()
+
+        // Build appointment doc
+        const appointment: any = {
+          clientId: firebaseUser?.uid || currentUser?.id || null,
+          clientEmail: inviteeEmail || firebaseUser?.email || currentUser?.email || null,
+          serviceKey: selectedService || null,
+          serviceTitle: services.find(s => s.key === selectedService)?.title || null,
+          status: 'upcoming',
+          createdAt: serverTimestamp(),
+          calendlyPayload: payload,
+        }
+
+        if (startTimeStr) {
+          const dt = new Date(startTimeStr)
+          appointment.startTime = Timestamp.fromDate(dt)
+        }
+
+        // Deduplication: try to find existing appointment with same Calendly event URI or invitee id
+        const eventUri = payload?.event?.uri || null
+        const inviteeId = payload?.invitee?.id || null
+
+        let exists = false
+        try {
+          if (eventUri) {
+            const q = query(collection(firestore, 'appointments'), where('calendlyPayload.event.uri', '==', eventUri))
+            const snap = await getDocs(q)
+            if (!snap.empty) exists = true
+          }
+          // fallback check by invitee id if eventUri not found or no matches
+          if (!exists && inviteeId) {
+            const q2 = query(collection(firestore, 'appointments'), where('calendlyPayload.invitee.id', '==', inviteeId))
+            const snap2 = await getDocs(q2)
+            if (!snap2.empty) exists = true
+          }
+        } catch (err) {
+          console.warn('Deduplication query failed', err)
+        }
+
+        if (exists) {
+          console.log('Duplicate appointment detected, skipping save')
+          return
+        }
+
+        // Write appointment to Firestore
+        try {
+          await addDoc(collection(firestore, 'appointments'), appointment)
+          console.log('Appointment saved to Firestore')
+        } catch (err) {
+          console.error('Error saving appointment to Firestore', err)
+        }
+
+      } catch (err) {
+        console.error('Calendly message handler error', err)
+      }
+    }
+
+    window.addEventListener('message', handleMessage)
+    return () => window.removeEventListener('message', handleMessage)
+  }, [selectedService, services])
 
   const handleSelectService = (serviceKey: string) => {
     setSelectedService(serviceKey)
