@@ -261,22 +261,26 @@ export default function ProfilePage() {
 
             {/* Stats cards */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-              <div className="bg-card p-4 rounded-lg shadow-sm border">
-                <div className="text-sm text-muted-foreground">Total</div>
-                <div className="text-2xl font-bold">{stats?.total ?? '-'}</div>
-              </div>
-              <div className="bg-card p-4 rounded-lg shadow-sm border">
-                <div className="text-sm text-muted-foreground">Upcoming</div>
-                <div className="text-2xl font-bold">{stats?.upcoming ?? '-'}</div>
-              </div>
-              <div className="bg-card p-4 rounded-lg shadow-sm border">
-                <div className="text-sm text-muted-foreground">Completed</div>
-                <div className="text-2xl font-bold">{stats?.completed ?? '-'}</div>
-              </div>
-              <div className="bg-card p-4 rounded-lg shadow-sm border">
-                <div className="text-sm text-muted-foreground">Cancelled</div>
-                <div className="text-2xl font-bold">{stats?.cancelled ?? '-'}</div>
-              </div>
+              {[
+                { label: 'Total', value: stats?.total },
+                { label: 'Upcoming', value: stats?.upcoming },
+                { label: 'Completed', value: stats?.completed },
+                { label: 'Cancelled', value: stats?.cancelled },
+              ].map((stat, idx) => (
+                <motion.div
+                  key={stat.label}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.1 + idx * 0.05, duration: 0.5 }}
+                  className="relative group"
+                >
+                  <div className="absolute inset-0 bg-gradient-to-br from-[#30D5C8]/10 to-[#30D5C8]/5 rounded-lg blur-md opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                  <div className="relative bg-card p-6 rounded-lg border border-border shadow-md hover:shadow-lg transition-shadow duration-300">
+                    <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">{stat.label}</div>
+                    <div className="text-4xl font-bold text-[#30D5C8]">{stat.value ?? '-'}</div>
+                  </div>
+                </motion.div>
+              ))}
             </div>
 
             <div className="grid md:grid-cols-3 gap-8">
@@ -336,39 +340,72 @@ export default function ProfilePage() {
                 className="md:col-span-2"
               >
                 <Card>
-                    <CardHeader className="flex items-center justify-between">
+                    <CardHeader className="flex items-center justify-between flex-wrap gap-4">
                       <div>
                         <CardTitle>Upcoming Appointments</CardTitle>
                         <CardDescription>Your scheduled sessions</CardDescription>
                       </div>
                       <div className="flex items-center space-x-2">
-                        <Button variant="outline" size="sm" onClick={fetchAppointments} disabled={refreshing}>
+                        <Button 
+                          size="sm" 
+                          onClick={fetchAppointments} 
+                          disabled={refreshing}
+                          className="bg-[#30D5C8]/10 text-[#30D5C8] hover:bg-[#30D5C8]/20 border border-[#30D5C8]/30"
+                        >
                           {refreshing ? 'Refreshing...' : 'Refresh'}
                         </Button>
                       </div>
                     </CardHeader>
                   <CardContent>
-                    <div className="space-y-4">
+                    <div className="space-y-3">
                       {upcomingAppointments.length === 0 ? (
-                        <div className="bg-muted p-4 rounded-lg text-center">
-                          <p className="text-muted-foreground">You don't have any upcoming appointments.</p>
-                          <Button className="mt-4" onClick={() => navigate("/booking")}>Book an Appointment</Button>
+                        <div className="py-12 px-6 rounded-lg border-2 border-dashed border-[#30D5C8]/30 bg-[#30D5C8]/5 text-center">
+                          <p className="text-muted-foreground mb-4">You don't have any upcoming appointments.</p>
+                          <Button 
+                            className="bg-[#30D5C8] text-black hover:bg-[#30D5C8]/90 font-semibold"
+                            onClick={() => navigate("/booking")}
+                          >
+                            + Book an Appointment
+                          </Button>
                         </div>
                       ) : (
-                        upcomingAppointments.map((a) => (
-                          <div key={a.id} className="p-4 rounded-lg bg-muted/50 border">
-                            <div className="flex items-center justify-between">
-                              <div>
-                                <div className="font-semibold">{a.serviceTitle || a.serviceKey}</div>
-                                <div className="text-sm text-muted-foreground">{a.clientEmail}</div>
-                                <div className="text-sm mt-1">{formatDateTime(a.startTime)}</div>
+                        <motion.div
+                          initial="hidden"
+                          animate="visible"
+                          variants={{
+                            hidden: { opacity: 0 },
+                            visible: {
+                              opacity: 1,
+                              transition: {
+                                staggerChildren: 0.05,
+                                delayChildren: 0.1,
+                              },
+                            },
+                          }}
+                          className="space-y-3"
+                        >
+                          {upcomingAppointments.map((a) => (
+                            <motion.div
+                              key={a.id}
+                              variants={{
+                                hidden: { opacity: 0, y: 10 },
+                                visible: { opacity: 1, y: 0 },
+                              }}
+                              className="p-4 rounded-lg bg-card border border-border hover:border-[#30D5C8]/50 hover:shadow-md transition-all duration-300 hover:bg-[#30D5C8]/5"
+                            >
+                              <div className="flex items-center justify-between">
+                                <div className="flex-1">
+                                  <div className="font-semibold text-sm">{a.serviceTitle || a.serviceKey}</div>
+                                  <div className="text-xs text-muted-foreground mt-1">{a.clientEmail}</div>
+                                  <div className="text-sm font-medium text-[#30D5C8] mt-2">{formatDateTime(a.startTime)}</div>
+                                </div>
+                                <div>
+                                  <span className={`inline-block px-3 py-1 rounded-full text-xs font-semibold ${getStatusColor(a.status || 'upcoming')}`}>{a.status || 'upcoming'}</span>
+                                </div>
                               </div>
-                              <div>
-                                <span className={`inline-block px-3 py-1 rounded-full ${getStatusColor(a.status || 'upcoming')}`}>{a.status || 'upcoming'}</span>
-                              </div>
-                            </div>
-                          </div>
-                        ))
+                            </motion.div>
+                          ))}
+                        </motion.div>
                       )}
                     </div>
                   </CardContent>
@@ -388,26 +425,49 @@ export default function ProfilePage() {
                     <CardDescription>Your previous sessions</CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <div className="space-y-4">
+                    <div className="space-y-3">
                       {pastAppointments.length === 0 ? (
-                        <div className="bg-muted p-4 rounded-lg text-center">
+                        <div className="py-12 px-6 rounded-lg border-2 border-dashed border-muted-foreground/20 bg-muted/50 text-center">
                           <p className="text-muted-foreground">You don't have any past appointments.</p>
                         </div>
                       ) : (
-                        pastAppointments.map((a) => (
-                          <div key={a.id} className="p-4 rounded-lg bg-muted/50 border">
-                            <div className="flex items-center justify-between">
-                              <div>
-                                <div className="font-semibold">{a.serviceTitle || a.serviceKey}</div>
-                                <div className="text-sm text-muted-foreground">{a.clientEmail}</div>
-                                <div className="text-sm mt-1">{formatDateTime(a.startTime)}</div>
+                        <motion.div
+                          initial="hidden"
+                          animate="visible"
+                          variants={{
+                            hidden: { opacity: 0 },
+                            visible: {
+                              opacity: 1,
+                              transition: {
+                                staggerChildren: 0.05,
+                                delayChildren: 0.1,
+                              },
+                            },
+                          }}
+                          className="space-y-3"
+                        >
+                          {pastAppointments.map((a) => (
+                            <motion.div
+                              key={a.id}
+                              variants={{
+                                hidden: { opacity: 0, y: 10 },
+                                visible: { opacity: 1, y: 0 },
+                              }}
+                              className="p-4 rounded-lg bg-card border border-border hover:border-[#30D5C8]/30 hover:shadow-sm transition-all duration-300 opacity-75 hover:opacity-100"
+                            >
+                              <div className="flex items-center justify-between">
+                                <div className="flex-1">
+                                  <div className="font-semibold text-sm">{a.serviceTitle || a.serviceKey}</div>
+                                  <div className="text-xs text-muted-foreground mt-1">{a.clientEmail}</div>
+                                  <div className="text-sm text-muted-foreground mt-2">{formatDateTime(a.startTime)}</div>
+                                </div>
+                                <div>
+                                  <span className={`inline-block px-3 py-1 rounded-full text-xs font-semibold ${getStatusColor(a.status || 'completed')}`}>{a.status || 'completed'}</span>
+                                </div>
                               </div>
-                              <div>
-                                <span className={`inline-block px-3 py-1 rounded-full ${getStatusColor(a.status || 'completed')}`}>{a.status || 'completed'}</span>
-                              </div>
-                            </div>
-                          </div>
-                        ))
+                            </motion.div>
+                          ))}
+                        </motion.div>
                       )}
                     </div>
                   </CardContent>
