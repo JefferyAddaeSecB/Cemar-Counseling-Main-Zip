@@ -6,7 +6,7 @@ import { motion } from "framer-motion"
 import { useNavigate } from "react-router-dom"
 import { getCurrentUser, type User, checkIsLoggedIn } from "../../lib/auth-helpers"
 import { firestore } from "../../lib/firebase"
-import { collection, query, where, onSnapshot } from 'firebase/firestore'
+import { collection, query, where, onSnapshot, getDocs } from 'firebase/firestore'
 import { Avatar, AvatarFallback, AvatarImage } from "../../components/ui/avatar"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../../components/ui/card"
 import { LogOut, Settings, Camera } from "lucide-react"
@@ -21,6 +21,9 @@ export default function ProfilePage() {
   const [isLoading, setIsLoading] = useState(true)
   const [upcomingAppointments, setUpcomingAppointments] = useState<any[]>([])
   const [pastAppointments, setPastAppointments] = useState<any[]>([])
+  const [stats, setStats] = useState<{ total: number; upcoming: number; completed: number; cancelled: number } | null>(null)
+  const [error, setError] = useState<string | null>(null)
+  const [refreshing, setRefreshing] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const { theme } = useTheme()
 
@@ -49,10 +52,78 @@ export default function ProfilePage() {
         past.sort((x, y) => (y.startTime?.toDate?.() || 0) - (x.startTime?.toDate?.() || 0))
         setUpcomingAppointments(upcoming)
         setPastAppointments(past)
+        // compute stats
+        const total = docs.length
+        const upcomingCount = upcoming.length
+        const cancelledCount = docs.filter(a => a.status === 'cancelled').length
+        const completedCount = docs.filter(a => a.status === 'completed' || (a.startTime ? a.startTime.toDate() <= now : false)).length
+        setStats({ total, upcoming: upcomingCount, completed: completedCount, cancelled: cancelledCount })
       })
       return () => unsubscribe()
     }
   }, [navigate])
+
+  // Manual refresh - fetch docs once
+  const fetchAppointments = async () => {
+    try {
+      setError(null)
+      setRefreshing(true)
+      const currentUser = getCurrentUser()
+      if (!currentUser?.id) throw new Error('Not authenticated')
+      const q = query(collection(firestore, 'appointments'), where('clientId', '==', currentUser.id))
+      const snap = await getDocs(q)
+      const docs = snap.docs.map(d => ({ id: d.id, ...(d.data() as any) }))
+      const now = new Date()
+      const upcoming = docs.filter(a => (a.startTime ? a.startTime.toDate() > now : a.status === 'upcoming'))
+      const past = docs.filter(a => (a.startTime ? a.startTime.toDate() <= now : a.status === 'completed'))
+      upcoming.sort((x, y) => (x.startTime?.toDate?.() || 0) - (y.startTime?.toDate?.() || 0))
+      past.sort((x, y) => (y.startTime?.toDate?.() || 0) - (x.startTime?.toDate?.() || 0))
+      setUpcomingAppointments(upcoming)
+      setPastAppointments(past)
+      // stats
+      const total = docs.length
+      const upcomingCount = upcoming.length
+      const cancelledCount = docs.filter(a => a.status === 'cancelled').length
+      const completedCount = docs.filter(a => a.status === 'completed' || (a.startTime ? a.startTime.toDate() <= now : false)).length
+      setStats({ total, upcoming: upcomingCount, completed: completedCount, cancelled: cancelledCount })
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Unknown error')
+    } finally {
+      setRefreshing(false)
+    }
+  }
+
+  // Periodic refresh as a fallback (every 30 seconds)
+  useEffect(() => {
+    const interval = setInterval(() => {
+      fetchAppointments().catch(() => {})
+    }, 30000)
+    return () => clearInterval(interval)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  // helper: format date/time
+  const formatDateTime = (ts: any) => {
+    try {
+      const date = ts?.toDate ? ts.toDate() : new Date(ts)
+      return date.toLocaleString(undefined, { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' })
+    } catch (e) {
+      return 'TBD'
+    }
+  }
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'upcoming':
+        return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
+      case 'completed':
+        return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+      case 'cancelled':
+        return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
+      default:
+        return 'bg-gray-100 text-gray-800'
+    }
+  }
 
   const handleLogout = () => {
     localStorage.removeItem("isLoggedIn")
@@ -188,7 +259,30 @@ export default function ProfilePage() {
               </motion.p>
             </div>
 
+            {/* Stats cards */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+              <div className="bg-card p-4 rounded-lg shadow-sm border">
+                <div className="text-sm text-muted-foreground">Total</div>
+                <div className="text-2xl font-bold">{stats?.total ?? '-'}</div>
+              </div>
+              <div className="bg-card p-4 rounded-lg shadow-sm border">
+                <div className="text-sm text-muted-foreground">Upcoming</div>
+                <div className="text-2xl font-bold">{stats?.upcoming ?? '-'}</div>
+              </div>
+              <div className="bg-card p-4 rounded-lg shadow-sm border">
+                <div className="text-sm text-muted-foreground">Completed</div>
+                <div className="text-2xl font-bold">{stats?.completed ?? '-'}</div>
+              </div>
+              <div className="bg-card p-4 rounded-lg shadow-sm border">
+                <div className="text-sm text-muted-foreground">Cancelled</div>
+                <div className="text-2xl font-bold">{stats?.cancelled ?? '-'}</div>
+              </div>
+            </div>
+
             <div className="grid md:grid-cols-3 gap-8">
+              {error && (
+                <div className="md:col-span-3 bg-red-100 text-red-800 p-3 rounded mb-4">{error}</div>
+              )}
               {/* Profile Card */}
               <motion.div
                 initial={{ opacity: 0, x: -20 }}
@@ -242,10 +336,17 @@ export default function ProfilePage() {
                 className="md:col-span-2"
               >
                 <Card>
-                  <CardHeader>
-                    <CardTitle>Upcoming Appointments</CardTitle>
-                    <CardDescription>Your scheduled sessions</CardDescription>
-                  </CardHeader>
+                    <CardHeader className="flex items-center justify-between">
+                      <div>
+                        <CardTitle>Upcoming Appointments</CardTitle>
+                        <CardDescription>Your scheduled sessions</CardDescription>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <Button variant="outline" size="sm" onClick={fetchAppointments} disabled={refreshing}>
+                          {refreshing ? 'Refreshing...' : 'Refresh'}
+                        </Button>
+                      </div>
+                    </CardHeader>
                   <CardContent>
                     <div className="space-y-4">
                       {upcomingAppointments.length === 0 ? (
@@ -260,10 +361,10 @@ export default function ProfilePage() {
                               <div>
                                 <div className="font-semibold">{a.serviceTitle || a.serviceKey}</div>
                                 <div className="text-sm text-muted-foreground">{a.clientEmail}</div>
-                                <div className="text-sm mt-1">{a.startTime ? a.startTime.toDate().toLocaleString() : 'TBD'}</div>
+                                <div className="text-sm mt-1">{formatDateTime(a.startTime)}</div>
                               </div>
                               <div>
-                                <span className="inline-block px-3 py-1 rounded-full bg-[#30D5C8] text-black">{a.status}</span>
+                                <span className={`inline-block px-3 py-1 rounded-full ${getStatusColor(a.status || 'upcoming')}`}>{a.status || 'upcoming'}</span>
                               </div>
                             </div>
                           </div>
@@ -299,10 +400,10 @@ export default function ProfilePage() {
                               <div>
                                 <div className="font-semibold">{a.serviceTitle || a.serviceKey}</div>
                                 <div className="text-sm text-muted-foreground">{a.clientEmail}</div>
-                                <div className="text-sm mt-1">{a.startTime ? a.startTime.toDate().toLocaleString() : 'TBD'}</div>
+                                <div className="text-sm mt-1">{formatDateTime(a.startTime)}</div>
                               </div>
                               <div>
-                                <span className="inline-block px-3 py-1 rounded-full bg-gray-200 text-black">{a.status || 'completed'}</span>
+                                <span className={`inline-block px-3 py-1 rounded-full ${getStatusColor(a.status || 'completed')}`}>{a.status || 'completed'}</span>
                               </div>
                             </div>
                           </div>
