@@ -12,10 +12,14 @@ import { useTheme } from "../../components/theme-provider"
 const bookingLink = 'https://calendly.com/cemar-counselling/consultation';
 
 const slideshowImages = [
+    '/images/0.JPG',
+    '/images/1.JPG',
+    '/images/2.JPG',
+    '/images/3.JPG',
+    '/images/4.JPG',
     '/images/0.1.JPG',
     '/images/0.2.JPG',
     '/images/0.3.JPG',
-    '/images/0.4.JPG',
 ];
 
 export default function AboutPage() {
