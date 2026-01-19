@@ -40,8 +40,12 @@ export default function ProfilePage() {
     setUser(currentUser)
     setIsLoading(false)
     // Subscribe to appointments for this user
-    if (currentUser?.id) {
-      const q = query(collection(firestore, 'appointments'), where('clientId', '==', currentUser.id))
+    // Show appointments where:
+    // 1. clientId matches (user booked the appointment)
+    // 2. calendarOwnerEmail matches (user is the calendar owner)
+    if (currentUser?.email) {
+      // Subscribe to appointments where user is the client
+      const q = query(collection(firestore, 'appointments'), where('clientId', '==', currentUser.email))
       const unsubscribe = onSnapshot(q, (snap) => {
         const docs = snap.docs.map(d => ({ id: d.id, ...(d.data() as any) }))
         const now = new Date()
@@ -69,8 +73,8 @@ export default function ProfilePage() {
       setError(null)
       setRefreshing(true)
       const currentUser = getCurrentUser()
-      if (!currentUser?.id) throw new Error('Not authenticated')
-      const q = query(collection(firestore, 'appointments'), where('clientId', '==', currentUser.id))
+      if (!currentUser?.email) throw new Error('Not authenticated')
+      const q = query(collection(firestore, 'appointments'), where('clientId', '==', currentUser.email))
       const snap = await getDocs(q)
       const docs = snap.docs.map(d => ({ id: d.id, ...(d.data() as any) }))
       const now = new Date()
