@@ -61,6 +61,20 @@ exports.syncCalendlyEvents = functions
       const ownerEmail = userResponse.data.resource.email
       console.log(`Calendar owner: ${ownerEmail}`)
 
+      // Find the therapist document by email to get their UID
+      let therapistId = null
+      try {
+        const therapistSnapshot = await db.collection('therapists').where('email', '==', ownerEmail).limit(1).get()
+        if (!therapistSnapshot.empty) {
+          therapistId = therapistSnapshot.docs[0].data().uid
+          console.log(`Found therapist UID: ${therapistId}`)
+        } else {
+          console.warn(`No therapist found for email: ${ownerEmail}`)
+        }
+      } catch (err) {
+        console.warn(`Error looking up therapist:`, err.message)
+      }
+
       // 3. Sync each event to Firestore
       let created = 0
       let updated = 0
@@ -93,7 +107,10 @@ exports.syncCalendlyEvents = functions
         const appointmentData = {
           eventId: eventId,
           calendlyUri: event.uri,
-          inviteeEmail: inviteeEmail,
+          therapistId: therapistId || ownerEmail, // Use UID if found, fallback to email
+          therapistEmail: ownerEmail,
+          clientId: inviteeEmail, // Store the invitee's email
+          clientEmail: inviteeEmail,
           inviteeName: inviteeName,
           eventName: event.name,
           startTime: admin.firestore.Timestamp.fromDate(new Date(event.start_time)),
@@ -101,8 +118,7 @@ exports.syncCalendlyEvents = functions
           status: event.status === 'active' ? 'scheduled' : 'cancelled',
           updatedAt: admin.firestore.Timestamp.now(),
           source: 'calendly_poll',
-          calendarOwnerEmail: ownerEmail, // Store the calendar owner
-          clientId: inviteeEmail, // Store the invitee's email so THEY can see the appointment
+          createdAt: admin.firestore.Timestamp.now(),
         }
 
         if (!existingDoc.exists) {
@@ -116,7 +132,6 @@ exports.syncCalendlyEvents = functions
             await appointmentRef.update({
               status: appointmentData.status,
               updatedAt: appointmentData.updatedAt,
-              clientId: inviteeEmail, // Update clientId in case it changed
             })
             updated++
           }

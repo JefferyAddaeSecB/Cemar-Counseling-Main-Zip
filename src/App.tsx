@@ -17,6 +17,9 @@ import PreferencesPage from './pages/settings/page';
 import PrivacyPolicyPage from './pages/privacy/page';
 import InformedConsentPage from './pages/informed-consent/page';
 import ProtectedRoute from './components/protected-route';
+import ProtectedTherapistRoute from './components/therapist/protected-route';
+import TherapistDashboard from './pages/therapist/dashboard/page';
+import ClientProfilePage from './pages/therapist/clients/[clientId]/page';
 import './styles/globals.css';
 
 function App() {
@@ -58,6 +61,22 @@ function App() {
                 <ProtectedRoute>
                   <PreferencesPage />
                 </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/therapist/dashboard"
+              element={
+                <ProtectedTherapistRoute requiredRole="therapist">
+                  <TherapistDashboard />
+                </ProtectedTherapistRoute>
+              }
+            />
+            <Route
+              path="/therapist/clients/:clientId"
+              element={
+                <ProtectedTherapistRoute requiredRole="therapist">
+                  <ClientProfilePage />
+                </ProtectedTherapistRoute>
               }
             />
           </Routes>
