@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getCurrentUser, checkIsLoggedIn } from '../../../lib/auth-helpers';
 import { firestore } from '../../../lib/firebase';
-import { collection, query, where, onSnapshot, Timestamp } from 'firebase/firestore';
+import { collection, query, where, onSnapshot, Timestamp, doc, getDoc } from 'firebase/firestore';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../../components/ui/card';
 import { Button } from '../../../components/ui/button';
 import { useTheme } from '../../../components/theme-provider';
@@ -36,8 +36,9 @@ export default function TherapistDashboard() {
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [therapistSetupComplete, setTherapistSetupComplete] = useState(false);
 
-  // Check authorization
+  // Check authorization and verify therapist setup
   useEffect(() => {
     const isLoggedIn = checkIsLoggedIn();
     if (!isLoggedIn) {
@@ -51,15 +52,35 @@ export default function TherapistDashboard() {
       return;
     }
 
-    // Check if user has therapist role (from custom claims or user doc)
-    // For now, redirect to home if no appointments (new user)
     setUser(currentUser);
-    setLoading(false);
+
+    // Check if therapist document exists
+    const checkTherapistSetup = async () => {
+      try {
+        const therapistRef = doc(firestore, 'therapists', currentUser.uid);
+        const therapistDoc = await getDoc(therapistRef);
+        
+        if (!therapistDoc.exists()) {
+          // Redirect to setup page
+          navigate('/therapist/setup');
+          return;
+        }
+        
+        setTherapistSetupComplete(true);
+        setLoading(false);
+      } catch (err) {
+        console.error('Error checking therapist setup:', err);
+        setError('Error verifying therapist setup');
+        setLoading(false);
+      }
+    };
+
+    checkTherapistSetup();
   }, [navigate]);
 
   // Real-time listener for therapist's appointments
   useEffect(() => {
-    if (!user?.uid) return;
+    if (!user?.uid || !therapistSetupComplete) return;
 
     // Query appointments where therapist is logged in user
     const q = query(
@@ -74,18 +95,12 @@ export default function TherapistDashboard() {
       })) as Appointment[];
       
       setAppointments(docs);
-      
-      // If no appointments, redirect to home to complete profile setup
-      if (docs.length === 0 && !loading) {
-        // Optionally redirect after a delay, or stay on dashboard
-        // navigate('/');
-      }
     }, (err) => {
       setError(err.message);
     });
 
     return () => unsubscribe();
-  }, [user?.uid, loading]);
+  }, [user?.uid, therapistSetupComplete]);
 
   if (loading) {
     return (

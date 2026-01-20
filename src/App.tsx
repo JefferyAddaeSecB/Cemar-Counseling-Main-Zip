@@ -19,6 +19,7 @@ import InformedConsentPage from './pages/informed-consent/page';
 import ProtectedRoute from './components/protected-route';
 import ProtectedTherapistRoute from './components/therapist/protected-route';
 import TherapistDashboard from './pages/therapist/dashboard/page';
+import TherapistSetupPage from './pages/therapist/setup/page';
 import ClientProfilePage from './pages/therapist/clients/[clientId]/page';
 import './styles/globals.css';
 
@@ -70,6 +71,10 @@ function App() {
                   <TherapistDashboard />
                 </ProtectedTherapistRoute>
               }
+            />
+            <Route
+              path="/therapist/setup"
+              element={<TherapistSetupPage />}
             />
             <Route
               path="/therapist/clients/:clientId"
