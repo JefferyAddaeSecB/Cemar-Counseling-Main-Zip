@@ -23,14 +23,14 @@ export default function ProtectedRoute({ children, requiredRole = 'therapist' }:
       }
 
       const currentUser = getCurrentUser();
-      if (!currentUser?.uid) {
+      if (!currentUser?.id) {
         navigate('/login');
         return;
       }
 
       try {
         // Check user role in Firestore
-        const userDoc = await getDoc(doc(firestore, 'users', currentUser.uid));
+        const userDoc = await getDoc(doc(firestore, 'users', currentUser.id));
         
         if (!userDoc.exists()) {
           // Create user doc with default role

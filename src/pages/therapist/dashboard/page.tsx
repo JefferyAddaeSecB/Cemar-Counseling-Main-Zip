@@ -8,10 +8,7 @@ import { collection, query, where, onSnapshot, Timestamp, doc, getDoc } from 'fi
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../../components/ui/card';
 import { Button } from '../../../components/ui/button';
 import { useTheme } from '../../../components/theme-provider';
-import TodaySchedule from '../../../components/therapist/today-schedule';
-import UpcomingAppointments from '../../../components/therapist/upcoming-appointments';
-import ClientsList from '../../../components/therapist/clients-list';
-import StatsBar from '../../../components/therapist/stats-bar';
+import { TodaySchedule, UpcomingAppointments, ClientsList, StatsBar } from '../../../components/therapist/index';
 
 interface Appointment {
   id: string;
@@ -57,7 +54,7 @@ export default function TherapistDashboard() {
     // Check if therapist document exists
     const checkTherapistSetup = async () => {
       try {
-        const therapistRef = doc(firestore, 'therapists', currentUser.uid);
+        const therapistRef = doc(firestore, 'therapists', currentUser.id);
         const therapistDoc = await getDoc(therapistRef);
         
         if (!therapistDoc.exists()) {
@@ -80,12 +77,12 @@ export default function TherapistDashboard() {
 
   // Real-time listener for therapist's appointments
   useEffect(() => {
-    if (!user?.uid || !therapistSetupComplete) return;
+    if (!user?.id || !therapistSetupComplete) return;
 
     // Query appointments where therapist is logged in user
     const q = query(
       collection(firestore, 'appointments'),
-      where('therapistId', '==', user.uid)
+      where('therapistId', '==', user.id)
     );
 
     const unsubscribe = onSnapshot(q, (snap) => {
@@ -100,7 +97,7 @@ export default function TherapistDashboard() {
     });
 
     return () => unsubscribe();
-  }, [user?.uid, therapistSetupComplete]);
+  }, [user?.id, therapistSetupComplete]);
 
   if (loading) {
     return (
@@ -139,19 +136,19 @@ export default function TherapistDashboard() {
         {/* Main Grid Layout */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-8">
           {/* Primary: Today's Schedule (2 columns) */}
-          <div className="lg:col-span-2">
-            <TodaySchedule appointments={appointments} therapistId={user?.uid} />
+          <div className="col-span-2">
+            <TodaySchedule appointments={appointments} therapistId={user?.id} />
           </div>
 
           {/* Secondary: Clients List (1 column) */}
           <div>
-            <ClientsList appointments={appointments} therapistId={user?.uid} />
+            <ClientsList appointments={appointments} therapistId={user?.id} />
           </div>
         </div>
 
         {/* Upcoming Appointments */}
         <div className="mt-8">
-          <UpcomingAppointments appointments={appointments} therapistId={user?.uid} />
+          <UpcomingAppointments appointments={appointments} therapistId={user?.id} />
         </div>
       </div>
     </div>

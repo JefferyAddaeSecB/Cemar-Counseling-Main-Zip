@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../ui/card';
-import { Button } from '../../ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
+import { Button } from '../ui/button';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -9,10 +9,10 @@ import {
   AlertDialogDescription,
   AlertDialogHeader,
   AlertDialogTitle,
-} from '../../ui/alert-dialog';
-import { Badge } from '../../ui/badge';
+} from '../ui/alert-dialog';
+import { Badge } from '../ui/badge';
 import { Clock, User, Trash2, Edit2 } from 'lucide-react';
-import { firestore } from '../../../lib/firebase';
+import { firestore } from '../../lib/firebase';
 import { doc, updateDoc } from 'firebase/firestore';
 
 interface Appointment {

@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { Card, CardContent } from '../../ui/card';
+import { Card, CardContent } from '../ui/card';
 import { Calendar, Clock, CheckCircle2, XCircle } from 'lucide-react';
 
 interface Appointment {

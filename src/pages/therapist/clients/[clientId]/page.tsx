@@ -43,12 +43,12 @@ export default function ClientProfilePage() {
   }, [navigate]);
 
   useEffect(() => {
-    if (!user?.uid || !clientId) return;
+    if (!user?.id || !clientId) return;
 
     // Query appointments for this client and therapist
     const q = query(
       collection(firestore, 'appointments'),
-      where('therapistId', '==', user.uid),
+      where('therapistId', '==', user.id),
       where('clientId', '==', clientId)
     );
 
@@ -66,7 +66,7 @@ export default function ClientProfilePage() {
     });
 
     return () => unsubscribe();
-  }, [user?.uid, clientId]);
+  }, [user?.id, clientId]);
 
   if (loading) {
     return (

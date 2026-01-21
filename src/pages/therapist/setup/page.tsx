@@ -60,7 +60,7 @@ export default function TherapistSetupPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user?.uid) return;
+    if (!user?.id) return;
 
     setError(null);
     setSubmitting(true);
@@ -68,7 +68,7 @@ export default function TherapistSetupPage() {
     try {
       // Create user document with therapist role
       const userDoc = {
-        uid: user.uid,
+        uid: user.id,
         email: user.email,
         role: 'therapist',
         name: formData.name || user.name,
@@ -76,11 +76,11 @@ export default function TherapistSetupPage() {
         updatedAt: serverTimestamp(),
       };
 
-      await setDoc(doc(firestore, 'users', user.uid), userDoc, { merge: true });
+      await setDoc(doc(firestore, 'users', user.id), userDoc, { merge: true });
 
       // Create therapist profile document
       const therapistDoc = {
-        uid: user.uid,
+        uid: user.id,
         email: user.email,
         name: formData.name || user.name,
         phone: formData.phone,
@@ -91,7 +91,7 @@ export default function TherapistSetupPage() {
         updatedAt: serverTimestamp(),
       };
 
-      await setDoc(doc(firestore, 'therapists', user.uid), therapistDoc);
+      await setDoc(doc(firestore, 'therapists', user.id), therapistDoc);
 
       setSuccess(true);
 
