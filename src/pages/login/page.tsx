@@ -148,19 +148,25 @@ export default function LoginPage() {
 
     try {
       const user = await login(loginData.email, loginData.password)
+      console.log('🔐 Login successful:', { id: user.id, email: user.email, role: user.role })
       const params = new URLSearchParams(location.search)
       const returnUrl = params.get('returnUrl')
       
       // Check if user is a therapist - redirect to therapist dashboard
       if (user.role === 'therapist') {
+        console.log('✅ User is therapist, redirecting to /therapist/dashboard')
         navigate('/therapist/dashboard')
-      } else if (returnUrl) {
-        navigate(returnUrl)
       } else {
-        navigate('/')
+        console.log('👥 User is client, redirecting to home or returnUrl')
+        if (returnUrl) {
+          navigate(returnUrl)
+        } else {
+          navigate('/')
+        }
       }
     } catch (err) {
       const message = (err as any)?.message || 'Failed to login. Please check your credentials.'
+      console.error('❌ Login error:', message)
       setError(message)
     } finally {
       setIsLoading(false)

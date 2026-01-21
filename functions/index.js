@@ -207,3 +207,77 @@ exports.markPastAppointmentsCompleted = functions
     console.log(`Marked ${snapshot.size} appointments as completed`)
     return null
   })
+
+// MIGRATION: Fix therapist roles - ensures all therapists in therapists collection have role: "therapist" in users collection
+exports.fixTherapistRoles = functions
+  .https
+  .onCall(async (data, context) => {
+    // Verify caller is authenticated (basic check)
+    if (!context.auth) {
+      throw new functions.https.HttpsError('unauthenticated', 'Must be logged in')
+    }
+
+    try {
+      console.log('🔧 Starting therapist role migration...')
+
+      // Get all therapists
+      const therapistsSnapshot = await db.collection('therapists').get()
+      console.log(`Found ${therapistsSnapshot.size} therapists`)
+
+      const results = {
+        fixed: 0,
+        alreadyCorrect: 0,
+        errors: 0
+      }
+
+      // For each therapist, ensure their users document has role: "therapist"
+      for (const therapistDoc of therapistsSnapshot.docs) {
+        const therapistId = therapistDoc.id
+        const therapistData = therapistDoc.data()
+
+        try {
+          // Get the users document for this therapist
+          const userRef = db.collection('users').doc(therapistId)
+          const userSnap = await userRef.get()
+
+          if (!userSnap.exists) {
+            console.warn(`❌ No users document for therapist ${therapistId}`)
+            results.errors++
+            continue
+          }
+
+          const userData = userSnap.data()
+
+          // Check if role is already correct
+          if (userData.role === 'therapist') {
+            console.log(`✅ Therapist ${therapistId} already has role: "therapist"`)
+            results.alreadyCorrect++
+            continue
+          }
+
+          // Fix the role
+          console.log(`🔄 Fixing role for therapist ${therapistId} (current: ${userData.role})`)
+          await userRef.update({
+            role: 'therapist',
+            updatedAt: admin.firestore.Timestamp.now()
+          })
+
+          results.fixed++
+          console.log(`✅ Fixed therapist ${therapistId}`)
+        } catch (err) {
+          console.error(`Error fixing therapist ${therapistId}:`, err)
+          results.errors++
+        }
+      }
+
+      console.log('Migration complete:', results)
+      return {
+        success: true,
+        message: `Migration complete: ${results.fixed} fixed, ${results.alreadyCorrect} already correct, ${results.errors} errors`,
+        ...results
+      }
+    } catch (error) {
+      console.error('Migration failed:', error)
+      throw new functions.https.HttpsError('internal', error.message)
+    }
+  })

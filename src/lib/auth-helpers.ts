@@ -298,6 +298,8 @@ export async function login(email: string, password: string): Promise<User> {
 
     // Fetch user profile from Firestore
     const userProfile = await getUserFromFirestore(user.uid)
+    
+    console.log('📋 Firestore profile for user:', user.uid, userProfile)
 
     if (!userProfile) {
       throw new Error("User profile not found")
@@ -310,6 +312,8 @@ export async function login(email: string, password: string): Promise<User> {
       avatar: userProfile.avatar,
       role: userProfile.role as 'client' | 'therapist' | 'admin',
     }
+    
+    console.log('✅ User data compiled:', userData)
 
     // Save to localStorage
     saveUserToLocalStorage(userData)
