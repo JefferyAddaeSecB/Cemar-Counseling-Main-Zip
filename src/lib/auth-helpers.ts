@@ -206,19 +206,34 @@ export async function signInWithGoogle(): Promise<User> {
     const result = await signInWithPopup(auth, googleProvider)
     const user = result.user
 
+    // Fetch user profile from Firestore to get role
+    let userProfile = await getUserFromFirestore(user.uid)
+    
+    // If profile doesn't exist, create one with default client role
+    if (!userProfile) {
+      userProfile = {
+        id: user.uid,
+        name: user.displayName || user.email?.split('@')[0] || 'User',
+        email: user.email || '',
+        avatar: user.photoURL || undefined,
+        role: 'client',
+      }
+      
+      // Save to Firestore
+      await saveUserToFirestore(user.uid, {
+        ...userProfile,
+        role: 'client',
+      })
+    }
+
     // Create user object
     const userData: User = {
       id: user.uid,
-      name: user.displayName || user.email?.split('@')[0] || 'User',
+      name: userProfile.name || user.displayName || user.email?.split('@')[0] || 'User',
       email: user.email || '',
-      avatar: user.photoURL || undefined,
+      avatar: userProfile.avatar || user.photoURL || undefined,
+      role: userProfile.role as 'client' | 'therapist' | 'admin',
     }
-
-    // Save to Firestore
-    await saveUserToFirestore(user.uid, {
-      ...userData,
-      role: 'client', // Default role, can be changed later
-    })
 
     // Save to localStorage
     saveUserToLocalStorage(userData)
@@ -251,6 +266,7 @@ export async function signup(name: string, email: string, password: string): Pro
       name: name,
       email: email,
       avatar: firebaseUser.photoURL || undefined,
+      role: 'client',
     }
 
     // Save to Firestore
@@ -292,6 +308,7 @@ export async function login(email: string, password: string): Promise<User> {
       name: userProfile.name,
       email: user.email || '',
       avatar: userProfile.avatar,
+      role: userProfile.role as 'client' | 'therapist' | 'admin',
     }
 
     // Save to localStorage

@@ -26,9 +26,11 @@ export function GoogleSignInButton({
     try {
       const user = await signInWithGoogle()
       console.log('✅ Successfully signed in:', user)
-      // Redirect to returnUrl if present, else home
+      // Redirect based on user role
       setTimeout(() => {
-        if (returnUrl) {
+        if (user.role === 'therapist') {
+          navigate('/therapist/dashboard')
+        } else if (returnUrl) {
           navigate(returnUrl)
         } else {
           navigate('/')

@@ -147,10 +147,14 @@ export default function LoginPage() {
     setIsLoading(true)
 
     try {
-      await login(loginData.email, loginData.password)
+      const user = await login(loginData.email, loginData.password)
       const params = new URLSearchParams(location.search)
       const returnUrl = params.get('returnUrl')
-      if (returnUrl) {
+      
+      // Check if user is a therapist - redirect to therapist dashboard
+      if (user.role === 'therapist') {
+        navigate('/therapist/dashboard')
+      } else if (returnUrl) {
         navigate(returnUrl)
       } else {
         navigate('/')
