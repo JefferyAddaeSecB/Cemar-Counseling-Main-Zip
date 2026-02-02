@@ -1,5 +1,5 @@
 import React from 'react';
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, useLocation } from 'react-router-dom';
 import { ThemeProvider } from './components/theme-provider';
 import Navbar from './components/navbar';
 import Footer from './components/footer';
@@ -18,16 +18,21 @@ import PrivacyPolicyPage from './pages/privacy/page';
 import InformedConsentPage from './pages/informed-consent/page';
 import ProtectedRoute from './components/protected-route';
 import ProtectedTherapistRoute from './components/therapist/protected-route';
-import TherapistDashboard from './pages/therapist/dashboard/page';
+import TherapistSchedulePage from './pages/therapist/schedule/page';
+import TherapistClientsPage from './pages/therapist/clients/page';
+import TherapistSettingsPage from './pages/therapist/settings/page';
 import TherapistSetupPage from './pages/therapist/setup/page';
 import ClientProfilePage from './pages/therapist/clients/[clientId]/page';
 import './styles/globals.css';
 
 function App() {
+  const location = useLocation();
+  const isTherapistRoute = location.pathname.startsWith('/therapist');
+
   return (
     <ThemeProvider defaultTheme="light" enableSystem disableTransitionOnChange>
       <div className="flex min-h-screen flex-col">
-        <Navbar />
+        {!isTherapistRoute && <Navbar />}
         <main className="flex-1">
           <Routes>
             <Route path="/" element={<HomePage />} />
@@ -65,10 +70,34 @@ function App() {
               }
             />
             <Route
+              path="/therapist/schedule"
+              element={
+                <ProtectedTherapistRoute requiredRole="therapist">
+                  <TherapistSchedulePage />
+                </ProtectedTherapistRoute>
+              }
+            />
+            <Route
               path="/therapist/dashboard"
               element={
                 <ProtectedTherapistRoute requiredRole="therapist">
-                  <TherapistDashboard />
+                  <TherapistSchedulePage />
+                </ProtectedTherapistRoute>
+              }
+            />
+            <Route
+              path="/therapist/clients"
+              element={
+                <ProtectedTherapistRoute requiredRole="therapist">
+                  <TherapistClientsPage />
+                </ProtectedTherapistRoute>
+              }
+            />
+            <Route
+              path="/therapist/settings"
+              element={
+                <ProtectedTherapistRoute requiredRole="therapist">
+                  <TherapistSettingsPage />
                 </ProtectedTherapistRoute>
               }
             />
@@ -86,7 +115,7 @@ function App() {
             />
           </Routes>
         </main>
-        <Footer />
+        {!isTherapistRoute && <Footer />}
       </div>
     </ThemeProvider>
   );

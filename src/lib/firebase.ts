@@ -1,7 +1,7 @@
 import { initializeApp } from 'firebase/app'
 import { getAuth, GoogleAuthProvider } from 'firebase/auth'
 import { getDatabase } from 'firebase/database'
-import { getFirestore } from 'firebase/firestore'
+import { getFirestore, doc, getDoc, setDoc, updateDoc, collection, query, where, orderBy, limit, onSnapshot } from 'firebase/firestore'
 
 // Firebase configuration
 const firebaseConfig = {
@@ -33,5 +33,11 @@ export const database = getDatabase(app, firebaseConfig.databaseURL)
 
 // Initialize Firestore (for structured document storage)
 export const firestore = getFirestore(app)
+
+// Expose Firebase to window for debugging/console scripts
+if (typeof window !== 'undefined') {
+  (window as any).firestore = firestore;
+  (window as any).firebaseFirestore = { doc, getDoc, setDoc, updateDoc, collection, query, where, orderBy, limit, onSnapshot };
+}
 
 export default app

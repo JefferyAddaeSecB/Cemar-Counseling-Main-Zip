@@ -1,5 +1,68 @@
 import { firestore } from './firebase';
-import { doc, updateDoc, query, collection, where, getDocs, Timestamp } from 'firebase/firestore';
+import { doc, updateDoc, query, collection, where, getDocs, Timestamp, setDoc, getDoc } from 'firebase/firestore';
+
+// Types for Jane-like portal
+export interface Appointment {
+  id: string;
+  // Calendly integration fields
+  externalProvider: 'calendly';
+  externalEventId: string;
+  externalInviteeId: string;
+  // Core appointment data
+  therapistId: string;
+  therapistEmail: string;
+  clientId: string;
+  clientEmail: string;
+  clientName?: string;
+  startTime: Timestamp;
+  endTime: Timestamp;
+  status: 'scheduled' | 'completed' | 'cancelled' | 'no-show';
+  serviceType: string;
+  meetingUrl?: string;
+  // Internal fields (Jane-like features)
+  internalStatus?: 'confirmed' | 'completed' | 'no-show' | 'rescheduled';
+  internalNotes?: string;
+  sessionNotes?: string;
+  followUpNeeded?: boolean;
+  // Metadata
+  source: 'calendly' | 'internal';
+  createdAt: Timestamp;
+  updatedAt: Timestamp;
+  completedAt?: Timestamp;
+  rawPayload?: any; // For debugging Calendly webhooks
+}
+
+export interface Client {
+  id: string;
+  email: string;
+  name?: string;
+  phone?: string;
+  // Calendly integration
+  externalInviteeIds: string[];
+  // Internal fields
+  internalNotes?: string;
+  tags?: string[];
+  preferredContactMethod?: 'email' | 'phone';
+  emergencyContact?: {
+    name: string;
+    phone: string;
+    relationship: string;
+  };
+  // Metadata
+  createdAt: Timestamp;
+  updatedAt: Timestamp;
+  lastAppointment?: Timestamp;
+  totalSessions: number;
+}
+
+export interface TherapistSettings {
+  calendlyToken?: string;
+  calendlyOrganizationId?: string;
+  eventTypeMappings: { [calendlyEventTypeId: string]: string }; // Maps Calendly event types to service types
+  lastSync?: Timestamp;
+  syncEnabled: boolean;
+  syncFrequencyMinutes: number;
+}
 
 /**
  * Cancel an appointment
@@ -25,52 +88,157 @@ export const completeAppointment = async (appointmentId: string): Promise<void> 
 };
 
 /**
+ * Update internal appointment status (independent of Calendly)
+ */
+export const updateInternalAppointmentStatus = async (
+  appointmentId: string,
+  internalStatus: 'confirmed' | 'completed' | 'no-show' | 'rescheduled',
+  notes?: string
+): Promise<void> => {
+  const ref = doc(firestore, 'appointments', appointmentId);
+  await updateDoc(ref, {
+    internalStatus,
+    internalNotes: notes,
+    updatedAt: Timestamp.now()
+  });
+};
+
+/**
+ * Add session notes to appointment
+ */
+export const addSessionNotes = async (appointmentId: string, notes: string): Promise<void> => {
+  const ref = doc(firestore, 'appointments', appointmentId);
+  await updateDoc(ref, {
+    sessionNotes: notes,
+    updatedAt: Timestamp.now()
+  });
+};
+
+/**
+ * Get Calendly reschedule URL for an appointment
+ */
+export const getCalendlyRescheduleUrl = (appointment: Appointment): string => {
+  // This would use Calendly's reschedule API
+  // For now, return a placeholder - implement based on Calendly API docs
+  return `https://calendly.com/reschedule/${appointment.externalEventId}`;
+};
+
+/**
+ * Get Calendly cancel URL for an appointment
+ */
+export const getCalendlyCancelUrl = (appointment: Appointment): string => {
+  // This would use Calendly's cancel API
+  // For now, return a placeholder - implement based on Calendly API docs
+  return `https://calendly.com/cancel/${appointment.externalEventId}`;
+};
+
+/**
  * Get all clients for a therapist
  */
-export const getTherapistClients = async (therapistId: string) => {
+export const getTherapistClients = async (therapistId: string): Promise<Client[]> => {
   const q = query(
     collection(firestore, 'appointments'),
     where('therapistId', '==', therapistId)
   );
-  
+
   const snapshot = await getDocs(q);
-  const clients = new Map();
-  
-  snapshot.forEach(doc => {
-    const apt = doc.data();
+  const clientMap = new Map<string, Client>();
+
+  // Build client data from appointments
+  for (const docSnap of snapshot.docs) {
+    const apt = docSnap.data() as Appointment;
     const clientId = apt.clientId;
-    
-    if (!clients.has(clientId)) {
-      clients.set(clientId, {
-        clientId,
-        email: apt.clientEmail,
-        name: apt.clientName || apt.inviteeName || apt.clientEmail,
-        totalSessions: 0,
-        lastSession: null,
-        nextSession: null
-      });
+
+    if (!clientMap.has(clientId)) {
+      // Try to get existing client document
+      const clientDoc = await getDoc(doc(firestore, 'clients', clientId));
+      let clientData: Client;
+
+      if (clientDoc.exists()) {
+        clientData = { id: clientDoc.id, ...clientDoc.data() } as Client;
+      } else {
+        // Create basic client from appointment data
+        clientData = {
+          id: clientId,
+          email: apt.clientEmail,
+          name: apt.clientName,
+          externalInviteeIds: [apt.externalInviteeId],
+          totalSessions: 0,
+          createdAt: Timestamp.now(),
+          updatedAt: Timestamp.now(),
+        };
+        // Save the new client
+        await setDoc(doc(firestore, 'clients', clientId), clientData);
+      }
+
+      clientMap.set(clientId, clientData);
     }
-    
-    const client = clients.get(clientId);
+
+    // Update session count and last appointment
+    const client = clientMap.get(clientId)!;
     client.totalSessions++;
-    
-    const startTime = apt.startTime?.toDate?.() || new Date(apt.startTime);
-    
-    if (apt.status === 'completed') {
-      if (!client.lastSession || startTime > client.lastSession) {
-        client.lastSession = startTime;
-      }
+    if (!client.lastAppointment || apt.startTime > client.lastAppointment) {
+      client.lastAppointment = apt.startTime;
     }
-    
-    const now = new Date();
-    if (startTime > now && apt.status === 'scheduled') {
-      if (!client.nextSession || startTime < client.nextSession) {
-        client.nextSession = startTime;
-      }
-    }
+  }
+
+  return Array.from(clientMap.values());
+};
+
+/**
+ * Update client information
+ */
+export const updateClient = async (clientId: string, updates: Partial<Client>): Promise<void> => {
+  const ref = doc(firestore, 'clients', clientId);
+  await updateDoc(ref, {
+    ...updates,
+    updatedAt: Timestamp.now()
   });
-  
-  return Array.from(clients.values());
+};
+
+/**
+ * Add internal notes to client
+ */
+export const addClientNotes = async (clientId: string, notes: string): Promise<void> => {
+  const ref = doc(firestore, 'clients', clientId);
+  const currentDoc = await getDoc(ref);
+  const currentNotes = currentDoc.data()?.internalNotes || '';
+
+  await updateDoc(ref, {
+    internalNotes: currentNotes + '\n\n' + new Date().toISOString() + ': ' + notes,
+    updatedAt: Timestamp.now()
+  });
+};
+
+/**
+ * Get therapist settings
+ */
+export const getTherapistSettings = async (therapistId: string): Promise<TherapistSettings | null> => {
+  const ref = doc(firestore, 'therapists', therapistId);
+  const snap = await getDoc(ref);
+
+  if (!snap.exists()) return null;
+
+  const data = snap.data();
+  return {
+    calendlyToken: data.calendlyToken,
+    calendlyOrganizationId: data.calendlyOrganizationId,
+    eventTypeMappings: data.eventTypeMappings || {},
+    lastSync: data.lastSync,
+    syncEnabled: data.syncEnabled ?? false,
+    syncFrequencyMinutes: data.syncFrequencyMinutes ?? 10,
+  };
+};
+
+/**
+ * Update therapist settings
+ */
+export const updateTherapistSettings = async (therapistId: string, settings: Partial<TherapistSettings>): Promise<void> => {
+  const ref = doc(firestore, 'therapists', therapistId);
+  await updateDoc(ref, {
+    ...settings,
+    updatedAt: Timestamp.now()
+  });
 };
 
 /**
