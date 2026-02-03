@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
-import { Calendar, Users, Settings, ExternalLink, RefreshCw } from 'lucide-react';
+import { Calendar, Users, Settings, ExternalLink, RefreshCw, FileText } from 'lucide-react';
 import { TherapistSettings, getTherapistSettings, updateTherapistSettings } from '@/lib/therapist-utils';
 import TherapistSidebarNav from '@/components/therapist/sidebar-nav';
 

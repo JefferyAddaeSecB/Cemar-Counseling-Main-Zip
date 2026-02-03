@@ -201,6 +201,24 @@ export default function Footer() {
                                 info@cemarcounseling.com
                             </a>
                         </motion.p>
+                        <motion.p variants={itemVariants}>
+                            <a
+                                href="https://g.page/r/CcGpGsA10-8QEAE/review"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="hover:text-[#30D5C8]"
+                                onClick={() => {
+                                    // Track analytics if available
+                                    if (typeof window !== 'undefined' && (window as any).gtag) {
+                                        (window as any).gtag('event', 'review_link_click', {
+                                            source: 'footer'
+                                        });
+                                    }
+                                }}
+                            >
+                                Leave a Review
+                            </a>
+                        </motion.p>
                     </motion.div>
                 </div>
 
