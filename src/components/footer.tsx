@@ -136,7 +136,7 @@ export default function Footer() {
                     <motion.div variants={itemVariants} className="space-y-4">
                         <motion.h3 variants={itemVariants} className="text-lg font-semibold">Quick Links</motion.h3>
                         <ul className="space-y-2">
-                           {['Home', 'About', 'Services', 'Contact'].map((link, index) => {
+                           {['Home', 'About', 'Services', 'FAQ', 'Contact'].map((link, index) => {
     const path =
         link === "Home"
             ? "/"                    // FIXED

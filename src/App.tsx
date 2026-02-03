@@ -7,6 +7,7 @@ import HomePage from './pages/home-page';
 import AboutPage from './pages/about/page';
 import ServicesPage from './pages/services/page';
 import ContactPage from './pages/contact/page';
+import FAQPage from './pages/faq/page';
 import BookingPage from './pages/booking/page';
 import LoginPage from './pages/login/page';
 import TermsPage from './pages/terms/page';
@@ -38,6 +39,7 @@ function App() {
             <Route path="/" element={<HomePage />} />
             <Route path="/about" element={<AboutPage />} />
             <Route path="/services" element={<ServicesPage />} />
+            <Route path="/faq" element={<FAQPage />} />
             <Route path="/contact" element={<ContactPage />} />
             <Route path="/booking" element={<BookingPage />} />
             <Route path="/login" element={<LoginPage />} />

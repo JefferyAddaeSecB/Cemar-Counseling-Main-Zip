@@ -532,7 +532,8 @@ export default function ContactPage() {
             >
               <h3 className="font-semibold mb-2">Do you accept insurance?</h3>
               <p className="text-muted-foreground">
-                Yes, we accept many major insurance plans. Please contact our office with your insurance information to
+                Yes, we accept many major insurance plans including OAP (Ontario Autism Program), extended health benefits, 
+                and various private insurance providers. Please contact our office with your insurance information to
                 verify your coverage before your first appointment.
               </p>
             </motion.div>
