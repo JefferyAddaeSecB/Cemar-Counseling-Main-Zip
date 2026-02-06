@@ -6,15 +6,12 @@ admin.initializeApp()
 const db = admin.firestore()
 
 // Get Calendly API token from environment
-// For local testing: set in .env.local or pass as env var
-// For production: set via Firebase Secret Manager
 const CALENDLY_API_TOKEN = process.env.CALENDLY_API_TOKEN || ''
 const CALENDLY_BASE_URL = 'https://api.calendly.com'
 
 // Scheduled function: runs every 10 minutes to sync Calendly events
 exports.syncCalendlyEvents = functions
   .runWith({
-    secrets: ['CALENDLY_API_TOKEN'],
     timeoutSeconds: 300,
     memory: '256MB'
   })

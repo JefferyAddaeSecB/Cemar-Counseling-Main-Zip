@@ -5,6 +5,7 @@ import { motion } from "framer-motion"
 import { Home, HelpCircle, ChevronDown } from "lucide-react"
 import { useNavigate } from "react-router-dom"
 import { useTheme } from "../../components/theme-provider"
+import { LazyImage } from "../../components/ui/lazy-image"
 import { useState } from "react"
 
 export default function FAQPage() {
@@ -140,10 +141,59 @@ export default function FAQPage() {
   let questionCounter = 0
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background pt-16">
       {/* Hero Section */}
-      <section className="relative py-20 bg-[#30D5C8]">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+      <section className='relative h-[60vh] flex items-center overflow-hidden'>
+        {/* Background Image */}
+        <motion.div
+          className='absolute inset-0 z-0'
+          initial={{scale: 1, rotate: 0}}
+          animate={{
+            scale: [1, 1.2, 1.1, 1.3, 1],
+            rotate: [0, 1, -1, 2, 0],
+            filter: [
+              'brightness(0.7) saturate(1)',
+              'brightness(0.8) saturate(1.2)',
+              'brightness(0.7) saturate(1.1)',
+              'brightness(0.9) saturate(1.3)',
+              'brightness(0.7) saturate(1)',
+            ],
+          }}
+          transition={{
+            duration: 20,
+            repeat: Number.POSITIVE_INFINITY,
+            repeatType: 'reverse',
+            ease: 'easeInOut',
+            times: [0, 0.25, 0.5, 0.75, 1],
+          }}
+        >
+          <LazyImage
+            src='/images/communication-connection.jpg'
+            alt='Frequently asked questions'
+            className='w-full h-full object-cover'
+          />
+          <motion.div
+            className='absolute inset-0'
+            animate={{
+              backgroundColor: [
+                'rgba(0, 0, 0, 0.4)',
+                'rgba(0, 0, 0, 0.5)',
+                'rgba(0, 0, 0, 0.3)',
+                'rgba(0, 0, 0, 0.6)',
+                'rgba(0, 0, 0, 0.4)',
+              ],
+            }}
+            transition={{
+              duration: 15,
+              repeat: Number.POSITIVE_INFINITY,
+              repeatType: 'reverse',
+              ease: 'easeInOut',
+            }}
+          />
+        </motion.div>
+
+        {/* Hero Content */}
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <motion.div
             initial="hidden"
             animate="visible"
@@ -152,49 +202,27 @@ export default function FAQPage() {
             <motion.div
               variants={fadeIn}
               custom={0}
-              className="inline-flex items-center justify-center w-20 h-20 mb-6 rounded-full bg-black/10"
+              className="inline-flex items-center justify-center w-20 h-20 mb-6 rounded-full bg-white/20"
             >
-              <HelpCircle className="w-10 h-10 text-black" />
+              <HelpCircle className="w-10 h-10 text-white" />
             </motion.div>
             
             <motion.h1
               variants={fadeIn}
               custom={1}
-              className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 text-black"
+              className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 text-white"
             >
-              Frequently Asked Questions
+              Frequently Asked{' '}
+              <span className="text-[#30D5C8]">Questions</span>
             </motion.h1>
             
             <motion.p
               variants={fadeIn}
               custom={2}
-              className="text-xl md:text-2xl mb-8 text-black"
+              className="text-xl md:text-2xl mb-8 text-white/90"
             >
               Find answers to common questions about our counseling services, scheduling, insurance, and more.
             </motion.p>
-
-            <motion.div
-              variants={fadeIn}
-              custom={3}
-              className="flex flex-wrap gap-4 justify-center"
-            >
-              <Button
-                onClick={() => navigate('/')}
-                variant="outline"
-                size="lg"
-                className="gap-2 border-black text-black hover:bg-black/10"
-              >
-                <Home className="w-5 h-5" />
-                Back to Home
-              </Button>
-              <Button
-                onClick={() => navigate('/contact')}
-                size="lg"
-                className="bg-black text-white hover:bg-gray-800"
-              >
-                Contact Us
-              </Button>
-            </motion.div>
           </motion.div>
         </div>
       </section>
@@ -323,8 +351,7 @@ export default function FAQPage() {
               <Button
                 onClick={() => navigate('/booking')}
                 size="lg"
-                variant="outline"
-                className="border-white text-white hover:bg-white/10"
+                className="bg-[#30D5C8] text-black hover:bg-[#008080] hover:text-white"
               >
                 Book an Appointment
               </Button>

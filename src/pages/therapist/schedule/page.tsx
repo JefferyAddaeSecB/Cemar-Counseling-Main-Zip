@@ -8,9 +8,10 @@ import { collection, query, where, onSnapshot, Timestamp, doc, getDoc } from 'fi
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useTheme } from '@/components/theme-provider';
-import { Calendar, Clock, Users, Settings, Search, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Calendar, Clock, Users, Settings, Search, ChevronLeft, ChevronRight, RefreshCw } from 'lucide-react';
 import { AppointmentDrawer } from '@/pages/therapist/schedule/appointment-drawer';
 import { Appointment, getTherapistClients } from '@/lib/therapist-utils';
+import { syncCalendlyAppointments } from '@/lib/calendly-sync';
 import TherapistSidebarNav from '@/components/therapist/sidebar-nav';
 
 type ViewMode = 'day' | 'week' | 'agenda';
@@ -21,6 +22,7 @@ export default function TherapistSchedulePage() {
   const [user, setUser] = useState<any>(null);
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [loading, setLoading] = useState(true);
+  const [syncing, setSyncing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<ViewMode>('week');
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -66,6 +68,32 @@ export default function TherapistSchedulePage() {
     });
 
     return () => unsubscribe();
+  }, [user?.id]);
+
+  // Sync with Calendly
+  const handleSyncCalendly = async () => {
+    if (!user?.id) return;
+    
+    setSyncing(true);
+    try {
+      const result = await syncCalendlyAppointments(user.id);
+      if (result.error) {
+        setError(`Sync failed: ${result.error}`);
+      } else {
+        console.log(`✅ Synced ${result.total} appointments (${result.created} new, ${result.updated} updated)`);
+      }
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setSyncing(false);
+    }
+  };
+
+  // Auto-sync on mount
+  useEffect(() => {
+    if (user?.id) {
+      handleSyncCalendly();
+    }
   }, [user?.id]);
 
   const filteredAppointments = appointments.filter(apt =>
@@ -136,6 +164,15 @@ export default function TherapistSchedulePage() {
             </div>
 
             <div className="flex items-center space-x-4">
+              <Button
+                onClick={handleSyncCalendly}
+                disabled={syncing}
+                className="flex items-center space-x-2 bg-[#008080] hover:bg-[#006666] text-white"
+              >
+                <RefreshCw className={`w-4 h-4 ${syncing ? 'animate-spin' : ''}`} />
+                <span>{syncing ? 'Syncing...' : 'Sync Calendly'}</span>
+              </Button>
+              
               <div className="relative">
                 <Search className="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
                 <input

@@ -569,56 +569,6 @@ export default function ContactPage() {
           </div>
         </div>
       </section>
-
-      {/* Share Feedback Section */}
-      <section className="py-16 bg-muted">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5 }}
-            className="max-w-2xl mx-auto text-center"
-          >
-            <h2 className={`text-2xl md:text-3xl font-bold mb-4 ${
-              theme === 'dark' ? 'text-white' : 'text-black'
-            }`}>
-              Share Your Feedback
-            </h2>
-            <p className={`text-lg mb-6 ${
-              theme === 'dark' ? 'text-white/80' : 'text-black/80'
-            }`}>
-              If you'd like to share your experience, you can leave a review (optional).
-            </p>
-            <motion.div
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              <Button
-                asChild
-                size="lg"
-                className="bg-teal-600 hover:bg-teal-700 text-white font-semibold px-8 py-6 text-lg"
-              >
-                <a
-                  href="https://g.page/r/CcGpGsA10-8QEAE/review"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  onClick={() => {
-                    // Track analytics if available
-                    if (typeof window !== 'undefined' && (window as any).gtag) {
-                      (window as any).gtag('event', 'review_link_click', {
-                        source: 'contact_page'
-                      });
-                    }
-                  }}
-                >
-                  Leave a Review
-                </a>
-              </Button>
-            </motion.div>
-          </motion.div>
-        </div>
-      </section>
     </div>
   )
 }

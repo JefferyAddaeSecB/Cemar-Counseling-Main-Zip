@@ -170,7 +170,7 @@ export default function Navbar() {
                 <Link
                   to={link.href}
                   className={cn(
-                    "inline-flex items-center px-1 pt-1 text-sm font-medium transition-colors hover:text-[#30D5C8]",
+                    "inline-flex items-center px-1 pt-1 text-sm font-medium transition-colors hover:text-[#008080]",
                     location.pathname === link.href
                       ? "border-b-2 border-[#008080]"
                       : "",
